@@ -1,23 +1,26 @@
-// IMPORTANTE: estos son valores de EJEMPLO. Cambiarlos antes de usar el panel en producción
-// (ver sección "Panel admin" de CLAUDE.md). Este login es solo client-side (localStorage/
-// sessionStorage) sin backend, así que no ofrece seguridad real ante quien lea el código fuente.
-const CREDENCIALES = {
-  admin: { usuario: "admin", password: "CAMBIAR_ESTA_PASSWORD_ADMIN" },
-  superadmin: { usuario: "superadmin", password: "CAMBIAR_ESTA_PASSWORD_SUPERADMIN" }
-};
+// Login, cambio de contraseña y gestión de usuarios admin hablan con el backend real
+// (ver carpeta backend/). Cambiar esta URL si el backend corre en otro host/puerto.
+const API_BASE_URL = window.DC_API_BASE_URL || "http://localhost:4000/api";
 
-const credencialesGuardadas = localStorage.getItem("dc_credenciales");
-if (credencialesGuardadas) {
-  try {
-    const credenciales = JSON.parse(credencialesGuardadas);
-    Object.keys(CREDENCIALES).forEach(function (rol) {
-      if (credenciales[rol] && typeof credenciales[rol].password === "string") {
-        CREDENCIALES[rol].password = credenciales[rol].password;
-      }
-    });
-  } catch (error) {
-    localStorage.removeItem("dc_credenciales");
+// Envuelve fetch agregando la URL base y el token de sesión (si hay). Si el backend
+// responde 401/403 (token vencido o inválido), cierra la sesión local.
+async function apiFetch(path, options) {
+  const opciones = options || {};
+  const headers = Object.assign({ "Content-Type": "application/json" }, opciones.headers || {});
+  const token = sessionStorage.getItem("dc_token");
+  if (token) headers.Authorization = "Bearer " + token;
+
+  const respuesta = await fetch(API_BASE_URL + path, Object.assign({}, opciones, { headers }));
+  const datos = await respuesta.json().catch(function () { return {}; });
+
+  if (respuesta.status === 401 || respuesta.status === 403) {
+    if (sessionStorage.getItem("dc_logueado") === "si") {
+      cerrarSesion();
+      mostrarToast(datos.mensaje || "La sesión venció, iniciá sesión de nuevo.", "warning");
+    }
   }
+
+  return { ok: respuesta.ok, status: respuesta.status, datos: datos };
 }
 
 const noticiasPorDefecto = [
@@ -151,42 +154,46 @@ function mostrarLogin() {
   loginError.classList.add("d-none");
 }
 
-function iniciarSesion() {
+async function iniciarSesion() {
+  if (loginSubmit.disabled) return;
+
   const usuario = document.getElementById("login-user").value.trim();
   const pass = document.getElementById("login-pass").value;
 
-  const usuarioGuardado = cargarUsuariosApp().find(function (datos) {
-    return datos.usuario === usuario && datos.password === pass && datos.activo !== false;
+  loginError.classList.add("d-none");
+  loginSubmit.classList.add("is-loading");
+  loginSubmit.disabled = true;
+  loginSubmit.setAttribute("aria-label", "Ingresando al panel");
+  loginForm.querySelectorAll("input, button").forEach(function (control) {
+    control.disabled = true;
   });
-  const credencialFija = Object.entries(CREDENCIALES).find(function ([, datos]) {
-    return datos.usuario === usuario && datos.password === pass;
-  });
-  const credencial = usuarioGuardado || (credencialFija ? {
-    usuario: credencialFija[1].usuario,
-    rol: credencialFija[0]
-  } : null);
 
-  if (credencial) {
-    if (loginSubmit.disabled) return;
+  let respuesta;
+  try {
+    respuesta = await apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ usuario: usuario, password: pass })
+    });
+  } catch (error) {
+    respuesta = { ok: false, datos: { mensaje: "No se pudo conectar con el servidor." } };
+  }
 
-    rolActual = credencial.rol;
-    sessionStorage.setItem("dc_usuario", credencial.usuario);
+  if (respuesta.ok) {
+    rolActual = respuesta.datos.usuario.rol;
+    sessionStorage.setItem("dc_usuario", respuesta.datos.usuario.usuario);
+    sessionStorage.setItem("dc_token", respuesta.datos.token);
     sessionStorage.setItem("dc_logueado", "si");
     sessionStorage.setItem("dc_rol", rolActual);
-    loginError.classList.add("d-none");
-    loginSubmit.classList.add("is-loading");
-    loginSubmit.disabled = true;
-    loginSubmit.setAttribute("aria-label", "Ingresando al panel");
-    loginForm.querySelectorAll("input, button").forEach(function (control) {
-      control.disabled = true;
-    });
-
-    setTimeout(function () {
-      mostrarPanel();
-    }, 700);
+    mostrarPanel();
   } else {
-    loginError.textContent = "Usuario o contraseña incorrectos.";
+    loginError.textContent = respuesta.datos.mensaje || "Usuario o contraseña incorrectos.";
     loginError.classList.remove("d-none");
+    loginSubmit.classList.remove("is-loading");
+    loginSubmit.disabled = false;
+    loginSubmit.removeAttribute("aria-label");
+    loginForm.querySelectorAll("input, button").forEach(function (control) {
+      control.disabled = false;
+    });
   }
 }
 
@@ -195,23 +202,11 @@ loginForm.addEventListener("submit", function (e) {
   iniciarSesion();
 });
 
-loginPassword.addEventListener("input", function () {
-  const usuario = document.getElementById("login-user").value.trim();
-  const pass = loginPassword.value;
-  const credencialValida = cargarUsuariosApp().some(function (datos) {
-    return datos.usuario === usuario && datos.password === pass && datos.activo !== false;
-  }) || Object.values(CREDENCIALES).some(function (datos) {
-    return datos.usuario === usuario && datos.password === pass;
-  });
-
-  if (credencialValida) {
-    iniciarSesion();
-  }
-});
-
 function cerrarSesion() {
   sessionStorage.removeItem("dc_logueado");
   sessionStorage.removeItem("dc_rol");
+  sessionStorage.removeItem("dc_token");
+  sessionStorage.removeItem("dc_usuario");
   mostrarLogin();
 }
 
@@ -235,52 +230,21 @@ document.addEventListener("click", function (e) {
   }
 });
 
-function cargarUsuariosApp() {
-  try {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios_app") || "[]");
-    return Array.isArray(usuarios) ? usuarios : [];
-  } catch (error) {
-    return [];
-  }
-}
+// Los administradores ya no viven en localStorage: se administran vía la API
+// (backend/routes/usuarioRoutes.js, exclusiva para superadmin). Se guarda el último
+// listado recibido para poder completar el modal de edición sin otro viaje al servidor.
+let usuariosAdminCache = [];
 
-function guardarUsuariosApp(usuarios) {
-  localStorage.setItem("usuarios_app", JSON.stringify(usuarios));
-}
-
-function asegurarAdminInicial() {
-  const usuarios = cargarUsuariosApp();
-  const adminInicial = usuarios.find(usuario => usuario.usuario === CREDENCIALES.admin.usuario);
-  let huboCambios = false;
-
-  usuarios.forEach(function (usuario) {
-    if (usuario.rol === "admin" && typeof usuario.activo !== "boolean") {
-      usuario.activo = true;
-      huboCambios = true;
-    }
-  });
-
-  if (adminInicial) {
-    if (huboCambios) guardarUsuariosApp(usuarios);
-    return usuarios;
+async function renderUsuarios() {
+  const respuesta = await apiFetch("/usuarios");
+  if (!respuesta.ok) {
+    tablaUsuarios.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">No se pudo cargar la lista de administradores.</td></tr>';
+    return;
   }
 
-  usuarios.push({
-    id: "admin-inicial",
-    nombre: "Administrador",
-    usuario: CREDENCIALES.admin.usuario,
-    password: CREDENCIALES.admin.password,
-    rol: "admin",
-    activo: true
-  });
-  guardarUsuariosApp(usuarios);
-  return usuarios;
-}
-
-function renderUsuarios() {
-  const administradores = asegurarAdminInicial().filter(usuario => usuario.rol === "admin");
-  tablaUsuarios.innerHTML = administradores.length
-    ? administradores.map(function (usuario) {
+  usuariosAdminCache = respuesta.datos.usuarios || [];
+  tablaUsuarios.innerHTML = usuariosAdminCache.length
+    ? usuariosAdminCache.map(function (usuario) {
       return '<tr>' +
         '<td>' + escaparHTML(usuario.nombre) + '</td>' +
         '<td>' + escaparHTML(usuario.usuario) + '</td>' +
@@ -293,21 +257,23 @@ function renderUsuarios() {
     : '<tr><td colspan="4" class="text-center text-muted py-4">No hay administradores registrados.</td></tr>';
 }
 
-formUsuario.addEventListener("submit", function (e) {
+formUsuario.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const usuarios = cargarUsuariosApp();
   const nombre = document.getElementById("usuario-nombre").value.trim();
   const usuario = document.getElementById("usuario-usuario").value.trim();
   const password = document.getElementById("usuario-password").value;
 
-  if (usuarios.some(item => item.usuario === usuario)) {
-    mostrarToast("Ese nombre de usuario ya existe.", "warning");
+  const respuesta = await apiFetch("/usuarios", {
+    method: "POST",
+    body: JSON.stringify({ nombre: nombre, usuario: usuario, password: password })
+  });
+
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo agregar el administrador.", "warning");
     return;
   }
 
-  usuarios.push({ id: Date.now(), nombre: nombre, usuario: usuario, password: password, rol: "admin", activo: true });
-  guardarUsuariosApp(usuarios);
   formUsuario.reset();
   renderUsuarios();
   mostrarToast("Administrador agregado correctamente.", "success");
@@ -317,77 +283,77 @@ tablaUsuarios.addEventListener("click", function (e) {
   const boton = e.target.closest("button");
   if (!boton) return;
 
-  const usuarios = cargarUsuariosApp();
-  const indice = usuarios.findIndex(usuario => String(usuario.id) === boton.dataset.id);
-  if (indice === -1) return;
+  const usuario = usuariosAdminCache.find(item => String(item.id) === boton.dataset.id);
+  if (!usuario) return;
 
   if (boton.classList.contains("btn-eliminar-usuario")) {
-    const nombre = usuarios[indice].nombre || usuarios[indice].usuario;
-    usuarioPendienteDeBaja = usuarios[indice].id;
-    mensajeConfirmarBaja.textContent = "¿Está seguro de que desea dar de baja a " + nombre + "?";
+    usuarioPendienteDeBaja = usuario.id;
+    mensajeConfirmarBaja.textContent = "¿Está seguro de que desea dar de baja a " + (usuario.nombre || usuario.usuario) + "?";
     modalConfirmarBaja.show();
     return;
   }
 
   if (boton.classList.contains("btn-editar-usuario")) {
-    document.getElementById("editar-usuario-id").value = usuarios[indice].id;
-    document.getElementById("editar-usuario-nombre").value = usuarios[indice].nombre;
-    document.getElementById("editar-usuario-usuario").value = usuarios[indice].usuario;
+    document.getElementById("editar-usuario-id").value = usuario.id;
+    document.getElementById("editar-usuario-nombre").value = usuario.nombre;
+    document.getElementById("editar-usuario-usuario").value = usuario.usuario;
     document.getElementById("editar-usuario-password").value = "";
     modalEditarUsuario.show();
   }
 });
 
-formEditarUsuario.addEventListener("submit", function (e) {
+formEditarUsuario.addEventListener("submit", async function (e) {
   e.preventDefault();
-  const usuarios = cargarUsuariosApp();
   const id = document.getElementById("editar-usuario-id").value;
-  const indice = usuarios.findIndex(usuario => String(usuario.id) === id);
   const nombre = document.getElementById("editar-usuario-nombre").value.trim();
   const usuario = document.getElementById("editar-usuario-usuario").value.trim();
   const password = document.getElementById("editar-usuario-password").value;
 
-  if (indice === -1) return;
-  if (usuarios.some((item, posicion) => posicion !== indice && item.usuario === usuario)) {
-    mostrarToast("Ese nombre de usuario ya existe.", "warning");
-    return;
-  }
   if (password && password.length < 6) {
     mostrarToast("La contraseña debe tener al menos 6 caracteres.", "warning");
     return;
   }
 
-  usuarios[indice].nombre = nombre;
-  usuarios[indice].usuario = usuario;
-  if (password) usuarios[indice].password = password;
-  guardarUsuariosApp(usuarios);
+  const cuerpo = { nombre: nombre, usuario: usuario };
+  if (password) cuerpo.password = password;
+
+  const respuesta = await apiFetch("/usuarios/" + id, {
+    method: "PUT",
+    body: JSON.stringify(cuerpo)
+  });
+
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo actualizar el administrador.", "warning");
+    return;
+  }
+
   renderUsuarios();
   modalEditarUsuario.hide();
   mostrarToast("Administrador actualizado correctamente.", "success");
 });
 
-btnConfirmarBaja.addEventListener("click", function () {
+btnConfirmarBaja.addEventListener("click", async function () {
   if (usuarioPendienteDeBaja === null) return;
-  const usuarios = cargarUsuariosApp().filter(usuario => String(usuario.id) !== String(usuarioPendienteDeBaja));
-  guardarUsuariosApp(usuarios);
+
+  const respuesta = await apiFetch("/usuarios/" + usuarioPendienteDeBaja, { method: "DELETE" });
   usuarioPendienteDeBaja = null;
   modalConfirmarBaja.hide();
+
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo dar de baja al administrador.", "warning");
+    return;
+  }
+
   renderUsuarios();
   mostrarToast("Administrador dado de baja.", "warning");
 });
 
-cambiarPasswordForm.addEventListener("submit", function (e) {
+cambiarPasswordForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const passwordActual = document.getElementById("password-actual").value;
   const passwordNueva = document.getElementById("password-nueva").value;
   const passwordConfirmacion = document.getElementById("password-confirmacion").value;
-
-  if (passwordActual !== CREDENCIALES[rolActual].password) {
-    cambiarPasswordError.textContent = "La contraseña actual es incorrecta.";
-    cambiarPasswordError.classList.remove("d-none");
-    return;
-  }
 
   if (passwordNueva.length < 6) {
     cambiarPasswordError.textContent = "La nueva contraseña debe tener al menos 6 caracteres.";
@@ -401,8 +367,17 @@ cambiarPasswordForm.addEventListener("submit", function (e) {
     return;
   }
 
-  CREDENCIALES[rolActual].password = passwordNueva;
-  localStorage.setItem("dc_credenciales", JSON.stringify(CREDENCIALES));
+  const respuesta = await apiFetch("/auth/cambiar-password", {
+    method: "POST",
+    body: JSON.stringify({ passwordActual: passwordActual, passwordNueva: passwordNueva })
+  });
+
+  if (!respuesta.ok) {
+    cambiarPasswordError.textContent = respuesta.datos.mensaje || "No se pudo actualizar la contraseña.";
+    cambiarPasswordError.classList.remove("d-none");
+    return;
+  }
+
   cambiarPasswordModal.hide();
   mostrarToast("Contraseña actualizada correctamente.", "success");
 });
@@ -803,7 +778,11 @@ noticiaForm.addEventListener("submit", function (e) {
 
 noticiaFecha.value = new Date().toISOString().slice(0, 10);
 
-if (sessionStorage.getItem("dc_logueado") === "si") {
-  mostrarPanel();
+if (sessionStorage.getItem("dc_logueado") === "si" && sessionStorage.getItem("dc_token")) {
+  // Valida el token contra el backend antes de restaurar el panel: si venció o el
+  // usuario fue dado de baja mientras tanto, apiFetch ya se encarga de cerrar la sesión.
+  apiFetch("/auth/me").then(function (respuesta) {
+    if (respuesta.ok) mostrarPanel();
+  });
 }
 
