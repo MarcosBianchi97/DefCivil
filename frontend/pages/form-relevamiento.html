@@ -1,0 +1,72 @@
+<div class="card shadow-sm p-4 animate__animated animate__fadeIn">
+    <h4 class="fw-bold text-dark mb-4" id="titulo-form-relevamiento">
+        <i class="bi bi-plus-circle-fill text-primary me-2"></i> Nuevo Relevamiento
+    </h4>
+
+    <form id="form-nuevo-relevamiento" novalidate>
+        <input type="hidden" id="r_id_edicion">
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label for="r_departamento" class="form-label fw-semibold">Departamento *</label>
+                <select id="r_departamento" class="form-select" required>
+                    <option value="" selected disabled>Seleccione Departamento...</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="r_localidad" class="form-label fw-semibold">Localidad *</label>
+                <select id="r_localidad" class="form-select" required>
+                    <option value="" selected disabled>Seleccione Localidad...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label for="r_barrio" class="form-label fw-semibold">Barrio / Paraje</label>
+                <input type="text" id="r_barrio" class="form-control" placeholder="Ej: Centro, B° Los Alamos...">
+            </div>
+            <div class="col-md-6">
+                <label for="r_tipo_evento" class="form-label fw-semibold">Tipo de Evento / Incidente *</label>
+                <select id="r_tipo_evento" class="form-select" required>
+                    <option value="" selected disabled>Seleccione tipo de evento...</option>
+                    <option value="Inundación">Inundación</option>
+                    <option value="Incendio Forestal">Incendio Forestal</option>
+                    <option value="Derrumbe">Derrumbe</option>
+                    <option value="Venda / Temporal">Venda / Temporal</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label for="r_solicitante" class="form-label fw-semibold">Solicitante *</label>
+                <input type="text" id="r_solicitante" class="form-control" placeholder="Ej: Comisionado, Vecinos..." required>
+            </div>
+            <div class="col-md-4">
+                <label for="r_prioridad" class="form-label fw-semibold">Nivel de Prioridad *</label>
+                <select id="r_prioridad" class="form-select" required>
+                    <option value="Baja">Baja</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="r_relevador" class="form-label fw-semibold">Asignar Relevador *</label>
+                <select id="r_relevador" class="form-select" required>
+                    <option value="" selected disabled>Asignar a...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+            <button type="button" class="btn btn-secondary" onclick="window.cargarTablaRelevamientos()">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary fw-bold">
+                <i class="bi bi-save me-1"></i> Guardar Relevamiento
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,207 @@
+<div class="card shadow-sm p-4 animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark m-0" id="titulo-form-familia">Registrar Datos de la Familia</h4>
+        <button class="btn btn-outline-secondary btn-sm" onclick="regresarAListaFamilias()">
+            <i class="bi bi-arrow-left"></i> Volver a Familias
+        </button>
+    </div>
+
+    <!-- Indicador visual de pasos -->
+    <div class="progress mb-4" style="height: 6px;">
+        <div id="wizard-progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 33%;" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <form id="form-nueva-familia" novalidate>
+        <input type="hidden" id="f_id_edicion" value="">
+
+        <!-- ==================== PASO 1: Grupo Familiar ==================== -->
+        <div class="wizard-step" id="step-1">
+            <h5 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-people-fill"></i> Paso 1: Datos del Grupo Familiar</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label for="f_apellido" class="form-label fw-semibold">Apellido *</label>
+                    <input type="text" id="f_apellido" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="f_nombre" class="form-label fw-semibold">Nombre *</label>
+                    <input type="text" id="f_nombre" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="f_dni" class="form-label fw-semibold">DNI *</label>
+                    <input type="text" id="f_dni" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="f_telefono" class="form-label fw-semibold">Teléfono de Contacto</label>
+                    <input type="tel" id="f_telefono" class="form-control">
+                </div>
+                <div class="col-md-8">
+                    <label for="f_direccion" class="form-label fw-semibold">Dirección / Ubicación en Campo *</label>
+                    <input type="text" id="f_direccion" class="form-control" placeholder="Ej: Calle Pública s/n o Coordenadas" required>
+                </div>
+            </div>
+
+            <h5 class="text-secondary fw-bold border-bottom pb-2 mb-3">Composición Familiar y Prioridad</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label for="f_mayores" class="form-label fw-semibold">Cant. Mayores *</label>
+                    <input type="number" id="f_mayores" class="form-control" min="0" value="1" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="f_menores" class="form-label fw-semibold">Cant. Menores *</label>
+                    <input type="number" id="f_menores" class="form-control" min="0" value="0" required>
+                </div>
+                <div class="col-md-2">
+                    <label for="f_total" class="form-label fw-semibold">Total</label>
+                    <input type="number" id="f_total" class="form-control" readonly value="1">
+                </div>
+                <div class="col-md-4">
+                    <label for="f_urgencia_familiar" class="form-label fw-semibold">Prioridad de Atención *</label>
+                    <select id="f_urgencia_familiar" class="form-select" required>
+                        <option value="" selected disabled>Seleccione nivel...</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                <button type="button" class="btn btn-secondary" onclick="regresarAListaFamilias()">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold" onclick="cambiarPasoWizard(2)">Siguiente <i class="bi bi-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <!-- ==================== PASO 2: Evaluación de Vivienda ==================== -->
+        <div class="wizard-step d-none" id="step-2">
+            <h5 class="text-danger fw-bold border-bottom pb-2 mb-3"><i class="bi bi-house-exclamation-fill"></i> Paso 2: Evaluación de Daños en Vivienda</h5>
+            <div class="row g-3 mb-4 bg-light p-3 rounded border">
+                <div class="col-md-12 d-flex flex-wrap gap-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="f_dano_techo">
+                        <label class="form-check-label fw-semibold" for="f_dano_techo">Daño en Techo</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="f_dano_paredes">
+                        <label class="form-check-label fw-semibold" for="f_dano_paredes">Daño en Paredes</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="f_dano_pisos">
+                        <label class="form-check-label fw-semibold" for="f_dano_pisos">Daño en Pisos</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="f_dano_instalaciones">
+                        <label class="form-check-label fw-semibold" for="f_dano_instalaciones">Instalaciones Afectadas (Agua/Luz)</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="f_dano_perdida_completa">
+                        <label class="form-check-label text-danger fw-bold" for="f_dano_perdida_completa">⚠️ PÉRDIDA TOTAL / INHABITABLE</label>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="text-success fw-bold border-bottom pb-2 mb-3"><i class="bi bi-box-seam-fill"></i> Asistencia Inmediata</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 d-flex flex-column justify-content-end mb-3">
+                    <label for="f_need_alimentos" class="form-label fw-semibold">Unidades Alimentarias</label>
+                    <input type="number" id="f_need_alimentos" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-end mb-3">
+                    <label for="f_need_abrigos" class="form-label fw-semibold">Abrigos</label>
+                    <input type="number" id="f_need_abrigos" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-end mb-3">
+                    <label for="f_need_frazadas" class="form-label fw-semibold">Frazadas</label>
+                    <input type="number" id="f_need_frazadas" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-end mb-3">
+                    <label for="f_need_agua" class="form-label fw-semibold">Bidones de Agua</label>
+                    <input type="number" id="f_need_agua" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-4 d-flex flex-column justify-content-end mb-4">
+                    <label for="f_need_higiene" class="form-label fw-semibold">Kit de Higiene</label>
+                    <input type="number" id="f_need_higiene" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-4 d-flex flex-column justify-content-end mb-4">
+                    <label for="f_need_ropa" class="form-label fw-semibold">Ropa</label>
+                    <input type="number" id="f_need_ropa" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-4 d-flex flex-column justify-content-end mb-4">
+                    <label for="f_need_colchones" class="form-label fw-semibold">Colchones</label>
+                    <input type="number" id="f_need_colchones" class="form-control" min="0" value="0">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between border-top pt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="cambiarPasoWizard(1)"><i class="bi bi-arrow-left"></i> Anterior</button>
+                <button type="button" class="btn btn-primary fw-bold" onclick="cambiarPasoWizard(3)">Siguiente <i class="bi bi-arrow-right"></i></button>
+            </div>
+        </div>
+
+<!-- ==================== PASO 3: Materiales, Evidencias y Observaciones ==================== -->
+<div class="wizard-step d-none" id="step-3">
+    <h5 class="text-primary fw-bold border-bottom pb-2 mb-3">
+        <i class="bi bi-tools"></i> Paso 3: Materiales, Documentación y Observaciones
+    </h5>
+    
+    <div class="row g-3 mb-4">
+        <!-- Columna Izquierda: Materiales -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Seleccionar Material Requerido</label>
+            <div class="input-group mb-2">
+                <select id="input-item-mat" class="form-select form-select-sm">
+                    <option value="" selected disabled>Seleccione insumo del catálogo...</option>
+                    <option value="Chapas de zinc">Chapas de zinc</option>
+                    <option value="Tirantes de madera">Tirantes de madera</option>
+                    <option value="Perfiles C">Perfiles C</option>
+                    <option value="Cemento (bolsas)">Cemento (bolsas)</option>
+                    <option value="Ladrillos comunes">Ladrillos comunes</option>
+                    <option value="Membrana asfáltica">Membrana asfáltica</option>
+                    <option value="Caños de PVC">Caños de PVC</option>
+                </select>
+                <input type="number" id="input-cant-mat" class="form-control form-control-sm" style="max-width: 70px;" placeholder="Cant." min="1" value="1">
+                <button class="btn btn-outline-primary btn-sm" type="button" onclick="agregarItemLista('mat')">
+                    <i class="bi bi-plus-lg"></i> Agregar
+                </button>
+            </div>
+            <ul class="list-group small border rounded p-1 bg-white" id="lista-dinamica-mat" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
+        </div>
+
+        <!-- Columna Derecha: Documentación Adjuntada -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Documentación Adjuntada o Evidencia</label>
+            
+            <!-- Contenedor crítico para los archivos ya guardados en la nube -->
+            <div id="lista-archivos-guardados" class="mb-2"></div>
+
+            <!-- Input visual para seleccionar archivo o cámara -->
+            <div class="input-group mb-2">
+                <input type="file" id="inputArchivo" class="form-control form-control-sm" accept="image/*,application/pdf" capture="environment">
+                <button class="btn btn-outline-primary btn-sm" type="button" onclick="agregarArchivoAListaVisual()">
+                    <i class="bi bi-plus-lg"></i> Agregar
+                </button>
+            </div>
+            
+            <!-- Lista visual interactiva de pendientes -->
+            <ul class="list-group small border rounded p-1 bg-white" id="lista-archivos-pendientes" style="min-height: 70px; max-height: 120px; overflow-y: auto;">
+                <li class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>
+            </ul>
+            
+            <!-- Input REAL y OCULTO que viaja al FormData -->
+            <input type="file" id="inputEnvioReal" name="documentos" class="d-none" multiple>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="f_observaciones" class="form-label fw-semibold">Observaciones o Datos Críticos de Campo</label>
+        <textarea id="f_observaciones" class="form-control" rows="3" placeholder="Cualquier información relevante detectada por el relevador..."></textarea>
+    </div>
+
+    <div class="d-flex justify-content-between border-top pt-3">
+        <button type="button" class="btn btn-outline-secondary" onclick="cambiarPasoWizard(2)">
+            <i class="bi bi-arrow-left"></i> Anterior
+        </button>
+        <button type="submit" class="btn btn-success fw-bold px-4">Guardar Ficha Familiar</button>
+    </div>
+</div>
+    </form>
+</div>

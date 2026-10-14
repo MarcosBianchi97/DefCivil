@@ -1,0 +1,104 @@
+<div class="card animate__animated animate__fadeIn vista-relevamientos-fluida">
+        <h4 class="fw-bold text-white mb-3 fs-5">
+        <i class="bi bi-journal-text text-primary me-2"></i> Lista de Relevamientos
+    </h4>
+    
+    <!-- Fila de Botones Sutiles y Compactos abajo del Título -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+        onclick="window.verPanelPrincipal()" id="btn-volver-panel">
+            <i class="bi bi-house-door"></i> Volver al panel
+        </button>
+        <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-1" onclick="window.mostrarFormularioNuevoRelevamiento()" id="btn-nuevo-relevamiento">
+            <i class="bi bi-plus-circle-fill"></i> Nuevo Relevamiento
+        </button>
+    </div>
+    
+    <!-- ==================== BARRA DE FILTROS, ORDEN Y PAGINACIÓN LOCAL ==================== -->
+<div class="row g-2 mb-3 px-3 py-2 rounded border align-items-center filtros-relevamiento-box">
+    <!-- Buscador: Ocupa todo el ancho en celulares (col-12), y un tercio en escritorio (col-md-4) -->
+    <div class="col-12 col-md-4 mb-2 mb-md-0">
+        <label for="inputBusquedaRelevamiento" class="form-label fw-semibold small">Buscar (Código, Localidad, Barrio...)</label>
+        <input type="text" id="inputBusquedaRelevamiento" class="form-control form-control-sm" placeholder="Ej: Capital, Centro..." oninput="manejarCambioFiltrosRelevamientos()">
+    </div>
+    
+    <!-- Ordenar listado: Ocupa la mitad en celulares (col-6), y un tercio en escritorio (col-md-4) -->
+    <div class="col-6 col-md-4">
+        <label for="selectOrdenarRelevamientos" class="form-label fw-semibold small">Ordenar listado</label>
+        <select id="selectOrdenarRelevamientos" class="form-select form-select-sm" onchange="manejarCambioFiltrosRelevamientos()">
+            <option value="">Más recientes primero</option>
+            <option value="localidad">Localidad (A-Z)</option>
+            <option value="solicitante">Solicitante (A-Z)</option>
+            <option value="prioridad">Prioridad</option>
+            <option value="relevador">Relevador (A-Z)</option>
+        </select>
+    </div>
+
+    <!-- Mostrar registros: Ocupa la mitad en celulares (col-6), y un tercio en escritorio (col-md-4) -->
+    <div class="col-6 col-md-4">
+        <label for="selectPaginacionRelevamientos" class="form-label fw-semibold small">Mostrar registros</label>
+        <select id="selectPaginacionRelevamientos" class="form-select form-select-sm" onchange="manejarCambioFiltrosRelevamientos()">
+            <option value="5">5 por página</option>
+            <option value="10">10 por página</option>
+            <option value="20">20 por página</option>
+            <option value="50">50 por página</option>
+            <option value="todos">Todos</option>
+        </select>
+    </div>
+</div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle mt-2">
+            <thead class="table-dark head-desktop">
+                <tr>
+                    <th style="width: 10%">Código / Fecha</th>
+                    <th style="width: 8%">Estado</th>
+                    <th style="width: 22%">Ubicación / Barrio</th>
+                    <th style="width: 14%">Evento / Prioridad</th>
+                    <th style="width: 16%">Solicitante</th>
+                    <th style="width: 14%">Relevador</th>
+                    <th style="width: 5%" class="text-center">Familias</th>
+                    <th style="width: 11%" class="text-center col-acciones">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-relevamientos-body">
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
+                        Cargando relevamientos...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Controles de Paginación Local -->
+    <div id="contenedor-paginacion-relevamientos" class="d-flex justify-content-between align-items-center mt-3"></div>
+</div>
+
+<!-- Modal para Devolver Relevamiento con Observaciones -->
+<div class="modal fade" id="modalDevolucionRelevamiento" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalDevolucionLabel">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i> Devolver Relevamiento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="devolucion_id_relevamiento">
+                <div class="mb-3">
+                    <label for="devolucion_motivo" class="form-label fw-semibold">Motivo de la devolución / Observaciones:</label>
+                    <textarea class="form-control" id="devolucion_motivo" rows="4" placeholder="Indique qué correcciones o ajustes debe realizar el relevador..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning btn-sm text-dark fw-bold" onclick="confirmarDevolucionRelevamiento()">
+                    <i class="bi bi-send me-1"></i> Confirmar Devolución
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

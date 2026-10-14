@@ -1,0 +1,131 @@
+<div class="container-fluid py-4 animate__animated animate__fadeIn" id="seccion-principal-solicitudes">
+    <!-- Cabecera Limpia -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-secondary">
+        <h2 class="text-white fw-bold mb-0">
+            <i class="bi bi-file-earmark-arrow-up text-warning me-2"></i> Gestión de Solicitudes de Provisión
+        </h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm fw-semibold" id="tab-ver-historial">
+                <i class="bi bi-clock-history me-1"></i> Ver Historial
+            </button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN: OPERACIÓN PRINCIPAL -->
+    <div id="seccion-nueva-solicitud" class="card bg-dark text-light border-secondary shadow-sm p-4 mb-4">
+        
+        <!-- Subtítulo de Sección -->
+        <h5 class="fw-bold text-white mb-3">
+            <i class="bi bi-list-check text-warning me-2"></i> Listado Pendiente de Envío
+        </h5>
+
+        <!-- Tabla de Relevamientos en Espera -->
+        <div class="table-responsive mb-4">
+            <table class="table table-dark table-hover align-middle mb-0 border border-secondary" id="tabla-relevamientos-espera">
+                <thead class="table-secondary text-dark fw-bold small">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">Selección</th>
+                        <th>Código</th>
+                        <th class="d-none d-md-table-cell">Fecha</th>
+                        <th>Ubicación / Barrio</th>
+                        <th>Estado</th>
+                        <th class="d-none d-md-table-cell">Evento</th>
+                        <th>Relevador</th>
+                        <th>Prioridad</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Se inyecta dinámicamente vía JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Observaciones y Acciones unificadas -->
+        <div class="mb-3">
+            <label for="observaciones-solicitud" class="form-label fw-bold text-light small">Observaciones</label>
+            <textarea class="form-control bg-dark text-light border-secondary shadow-sm" id="observaciones-solicitud" rows="2" placeholder="Notas adicionales para la solicitud..."></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 pt-2">
+            <button type="button" class="btn btn-secondary px-4 fw-semibold" onclick="verListaSolicitudes()">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-warning text-dark px-4 fw-bold shadow-sm" id="btn-enviar-solicitud">
+                <i class="bi bi-send-check-fill me-1"></i> Emitir Solicitud Oficial
+            </button>
+        </div>
+    </div>
+
+<!-- SECCIÓN: HISTORIAL DE SOLICITUDES -->
+<div id="seccion-historial" class="card bg-dark text-light border-secondary shadow-sm p-4 d-none">
+    <h5 class="fw-bold text-white mb-3">
+        <i class="bi bi-clock-history text-info me-2"></i> Historial de Solicitudes Emitidas
+    </h5>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0 border border-secondary" id="tabla-historial-solicitudes">
+            <thead class="table-secondary text-dark fw-bold small">
+                <tr>
+                    <th>Código</th>
+                    <th class="d-none d-md-table-cell">Fecha</th>
+                    <th>Ubicación / Barrio</th>
+                    <th>Estado</th>
+                    <th class="d-none d-md-table-cell">Evento</th>
+                    <th>Relevador</th>
+                    <th>Prioridad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Se inyecta dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<!-- Modal de Auditoría de Solicitud -->
+<div class="modal fade" id="modalAuditoriaSolicitud" tabindex="-1" aria-labelledby="modalAuditoriaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+            <div class="modal-header border-bottom border-secondary bg-info text-dark">
+                <h5 class="modal-title" id="modalAuditoriaLabel">
+                    <i class="bi bi-eye me-2"></i> Auditoría de Relevamiento e Insumos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <!-- Cabecera de Resumen -->
+                <div class="row g-3 mb-3 bg-secondary bg-opacity-10 p-3 rounded border border-secondary">
+                    <div class="col-md-3"><strong>Código:</strong> <span id="audit-codigo" class="text-warning">-</span></div>
+                    <div class="col-md-3"><strong>Ubicación:</strong> <span id="audit-ubicacion">-</span></div>
+                    <div class="col-md-3"><strong>Evento:</strong> <span id="audit-evento">-</span></div>
+                    <div class="col-md-3"><strong>Urgencia:</strong> <span id="audit-urgencia">-</span></div>
+                    <div class="col-md-4 mt-2"><strong>Relevador:</strong> <span id="audit-relevador">-</span></div>
+                    <div class="col-md-4 mt-2"><strong>Total Familias:</strong> <span id="audit-total-familias" class="text-info">0</span></div>
+                </div>
+
+                <!-- Tabla de Familias y Acordeón de Insumos -->
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped table-hover align-middle border-secondary" id="tabla-audit-familias">
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>DNI Jefe</th>
+                                <th>Jefe de Familia</th>
+                                <th class="text-center">Integrantes</th>
+                                <th class="text-center">Insumos</th>
+                                <th class="text-center">Adjuntos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se inyecta dinámicamente mediante JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

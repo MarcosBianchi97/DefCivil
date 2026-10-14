@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS relevadores (
+    id SERIAL PRIMARY KEY,
+    codigo_operario VARCHAR(20) UNIQUE NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    dni VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(150),
+    telefono VARCHAR(50),
+    zona_asignada VARCHAR(100),
+    activo SMALLINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,0 +1,921 @@
+/* ========================================================
+   1. ESTILOS GENERALES Y CONFIGURACIÓN BASE (Modo Guardia)
+   ======================================================== */
+   html {
+    font-size: 13px;
+}
+
+body { 
+    min-height: 100vh; 
+    background-color: #121820; 
+    color: #e2e8f0;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Links del sidebar y menú móvil */
+.sidebar .nav-link, .navbar-collapse .nav-link { 
+    color: rgba(255, 255, 255, 0.8); 
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active,
+.navbar-collapse .nav-link:hover, .navbar-collapse .nav-link.active { 
+    color: #ffffff; 
+    background-color: rgba(0, 61, 122, 0.4); 
+}
+
+/* Barra de Navegación Superior (Azul institucional) */
+.navbar {
+    background-color: #003d7a !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.navbar-brand, .navbar-nav .nav-link {
+    color: #fff !important;
+}
+
+/* Contenido Principal y Títulos */
+.main-content {
+    padding: 20px;
+    max-width: 1450px;
+    margin: 0 auto;
+}
+
+.page-title, 
+h1, h2, h3, h4, h5, h6,
+.content-principal h2,
+.content-principal h4,
+.content-principal .text-dark {
+    color: #ffffff !important;
+}
+
+.main-content p, 
+.content-principal p,
+#app-container p {
+    color: #94a3b8 !important;
+}
+
+/* ========================================================
+   2. TARJETAS, COMPONENTES Y TARJETAS DE MÉTRICAS
+   ======================================================== */
+.card, 
+.card-body,
+.table-responsive {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+    border-radius: 8px;
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #003d7a !important;
+    color: white !important;
+    border-bottom: 1px solid #2d3748 !important;
+}
+
+/* Tarjetas de métricas del panel principal */
+.dash-card-btn {
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    border: 1px solid #2d3748 !important;
+}
+
+.dash-card-btn:hover,
+.dash-card-btn:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4) !important;
+    border-color: #0056b3 !important;
+}
+
+.dash-card-btn[class*="bg-"] {
+    background-color: #1e293b !important;
+    border-left: 4px solid #0056b3 !important;
+    color: #ffffff !important;
+}
+
+/* ========================================================
+   3. BARRA DE FILTROS ESPECÍFICA (.filtros-relevamiento-box)
+   ======================================================== */
+.filtros-relevamiento-box {
+    background-color: #212b38 !important;
+    border: 1px solid #334155 !important;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+}
+
+.filtros-relevamiento-box .col-md-4 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.filtros-relevamiento-box .form-label {
+    color: #94a3b8 !important;
+    font-size: 0.75rem !important;
+    margin-bottom: 0.2rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 1.5rem;
+}
+
+.filtros-relevamiento-box .form-control-sm,
+.filtros-relevamiento-box .form-select-sm {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+    height: 32px !important;
+}
+
+.filtros-relevamiento-box input::placeholder {
+    color: #64748b !important;
+}
+
+/* ========================================================
+   4. ESTILOS UNIVERSALES PARA TABLAS (Modo Oscuro)
+   ======================================================== */
+.table, 
+.table tr, 
+.table th, 
+.table td,
+.table-responsive table,
+.table-responsive tr,
+.table-responsive td {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #2d3748 !important;
+    vertical-align: middle !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.table td span,
+.table td div,
+.table td strong {
+    color: #f8fafc !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* ========================================================
+   5. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
+   ======================================================== */
+   @media (max-width: 767.98px) {
+    #sidebar-app, .sidebar {
+        display: none !important;
+    }
+
+    .main-content-wrapper {
+        width: 100% !important;
+        margin-left: 0 !important;
+        display: block;
+        min-height: calc(100vh - 60px); 
+        position: relative;
+    }
+
+    .main-content {
+        padding: 10px !important;
+        width: 100% !important;
+    }
+
+    .head-desktop {
+        display: none !important;
+    }
+
+    #sidebar-mobile .navbar-collapse {
+        position: absolute;
+        top: 55px;
+        right: 10px;
+        left: auto;
+        width: 240px;
+        background-color: #1a222c;
+        z-index: 1040; 
+        border-radius: 8px;
+        border: 1px solid #2d3748;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.6);
+        padding: 12px;
+    }
+
+    #sidebar-mobile .navbar-toggler:focus,
+    #sidebar-mobile .navbar-toggler:active {
+        outline: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+    }
+
+    #nombre-usuario-mobile {
+        display: inline-block;
+        max-width: 110px;
+        white-space: normal !important;
+        line-height: 1.1;
+        text-align: left;
+        font-size: 0.75rem;
+    }
+
+    /* 1. ANCHO UNIFORME DE LAS TARJETAS MÓVILES */
+    .content-principal .card,
+    .main-content .card,
+    #app-container .card {
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .content-principal .card tr.d-block,
+    .main-content .card tr.d-block {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* 2. BLINDAJE DEL ENCABEZADO: Código a la izquierda, Estado bien a la derecha */
+    .content-principal .card td .d-flex.justify-content-between,
+    .main-content .card td .d-flex.justify-content-between,
+    tr.d-block td > div:first-child {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    /* Títulos de filtros en blanco */
+    .filtros-relevamiento-box .form-label,
+    .content-principal label,
+    .content-principal .form-label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    /* Botones superiores compactos en móvil */
+    .content-principal .card .btn-sm,
+    .main-content .card .btn-sm {
+        padding: 0.35rem 0.65rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+    }
+
+    /* 3. CENTRADO LIMPIO EXCLUSIVO PARA LOS BOTONES DE ACCIÓN INFERIORES */
+    .content-principal .card td div.d-flex.flex-wrap,
+    .main-content .card td div.d-flex.flex-wrap,
+    tr.d-block td div.d-flex.flex-wrap {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        gap: 10px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    /* Tamaño natural y prolijo de los botones individuales de acción */
+    .content-principal .card td div.d-flex.flex-wrap .btn,
+    .main-content .card td div.d-flex.flex-wrap .btn {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 0.3rem 0.6rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    /* Ocultar el encabezado de la tabla de usuarios en móviles */
+    #tabla-usuarios thead {
+        display: none !important;
+    }
+    /* Ocultar el encabezado de la tabla de provisiones en móviles */
+    #tablaProvisiones thead {
+        display: none !important;
+    }
+    #tabla-familias thead { /* Ajustá el ID al que tenga tu tabla de familias */
+        display: none !important;
+    }
+    .content-principal .card td,
+    .main-content .card td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    /* Oculta los títulos de la tabla en celulares para usar el diseño de tarjetas */
+    .table-responsive thead {
+        display: none !important;
+    }
+}
+
+/* ========================================================
+   6. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
+   ======================================================== */
+@media (min-width: 768px) {
+    body { 
+        display: flex; 
+    }
+    
+    #sidebar-app, .sidebar {
+        display: flex !important;
+        flex-direction: column;
+        width: 200px !important; /* Reducido de 240px para ganar espacio */
+        position: fixed; 
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        background-color: #1a222c;
+        border-right: 1px solid #2d3748;
+    }
+    .main-content-wrapper { 
+        flex: 1; 
+        margin-left: 200px !important;
+        width: calc(100% - 200px);
+    }
+
+    .dropdown-hover:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; 
+        animation: fadeIn 0.2s;
+    }
+
+    #nombre-usuario-desktop {
+        display: inline-block;
+        max-width: 165px;
+        white-space: normal !important;
+        line-height: 1.1;
+        text-align: left;
+        font-size: 0.75rem;
+        word-break: break-word;
+    }
+
+    .sidebar .dropdown-toggle {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+}
+
+/* ========================================================
+   7. 🛡️ DISEÑO COMPACTO Y LIMITES
+   ======================================================== */
+.main-content .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+.main-content .card {
+    height: auto !important;
+    min-height: unset !important;
+}
+
+.main-content .fs-1, 
+.main-content .display-4, 
+.main-content h2 {
+    font-size: 2.2rem !important;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.content-principal, #app-container {
+    width: 100%;
+    max-width: 1350px;
+}
+
+/* ========================================================
+   8. 🌙 CORRECCIÓN DE PANELES Y FILTROS (Contexto y Familias)
+   ======================================================== */
+
+/* Panel superior de Contexto Territorial */
+.content-principal .card:first-child,
+.main-content .card:first-child,
+.bg-light,
+.p-3.border.rounded.bg-light {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* 
+  UNIFICACIÓN DE FILTROS: 
+  Hacemos que el contenedor de búsqueda de familias comparta 
+  exactamente el mismo fondo y bordes que .filtros-relevamiento-box 
+*/
+.filtros-relevamiento-box,
+.content-principal .card .row:not(:first-child) {
+    background-color: #212b38 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem !important;
+}
+
+/* Inputs y selects dentro de los bloques de filtrado */
+.filtros-relevamiento-box input,
+.filtros-relevamiento-box select,
+.content-principal .card .row:not(:first-child) input.form-control,
+.content-principal .card .row:not(:first-child) select.form-select {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+    height: 32px !important;
+    font-size: 0.8rem !important;
+}
+
+.content-principal input::placeholder {
+    color: #64748b !important;
+}
+
+/* Textos internos y etiquetas aclaratorias */
+.content-principal .text-muted,
+.card .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* ========================================================
+   9. MODO OSCURO PARA MODAL DE FICHA DE FAMILIA
+   ======================================================== */
+
+/* Aplicamos el azul institucional SOLO al modal de familia, no de forma global */
+#modalFichaFamilia .modal-header,
+.modal-ficha .modal-header {
+    background-color: #003d7a !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid #2d3748 !important;
+}
+
+#modalFichaFamilia .modal-header .modal-title,
+#modalFichaFamilia .modal-header h5,
+.modal-ficha .modal-header h5 {
+    color: #ffffff !important;
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Sub-tarjetas internas dentro de la ficha (Datos Demográficos, Estado de Vivienda, Insumos, etc.) */
+.modal-body .card,
+.modal-body .p-3,
+.modal-body .bg-light,
+.ficha-seccion {
+    background-color: #212b38 !important; /* El gris intermedio que nos gustó para los bloques */
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Títulos internos de las secciones de la ficha */
+.modal-body h5, 
+.modal-body h6, 
+.modal-body .text-primary,
+.modal-body .text-dark {
+    color: #60a5fa !important; /* Azul suave o blanco para destacar títulos internos */
+}
+
+/* Textos descriptivos e información de los campos */
+.modal-body p, 
+.modal-body span, 
+.modal-body strong,
+.modal-body label {
+    color: #e2e8f0 !important;
+}
+
+.modal-body .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Área de observaciones (la caja marrón/oscura de abajo) */
+.modal-body textarea,
+.modal-body .observaciones-box {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Pie del modal (Botones "Cerrar Ficha" y "Editar Ficha") */
+.modal-footer {
+    background-color: #1a222c !important;
+    border-top: 1px solid #2d3748 !important;
+}
+
+/* ========================================================
+   10. 🌙 CORRECCIÓN FINAL PARA FILAS REBELDES (Materiales)
+   ======================================================== */
+
+/* Forzar fondo oscuro y texto claro en cualquier tabla o ítem dentro del modal */
+.modal-body .table,
+.modal-body .table tr,
+.modal-body .table td,
+.modal-body .list-group-item,
+.modal-body .card-body tr {
+    background-color: #1a222c !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+/* Específicamente para los ítems de materiales de construcción si son filas o listas */
+.modal-body div[class*="material"],
+.modal-body .table-responsive td,
+.modal-body tr td {
+    background-color: #1a222c !important;
+    color: #f8fafc !important;
+}
+
+/* Textos de los nombres de materiales que queden claros */
+.modal-body td span,
+.modal-body td div {
+    color: #f8fafc !important;
+}
+
+/* ========================================================
+   11. 🌙 CORRECCIÓN PARA FORMULARIOS, SELECTS Y ARCHIVOS (Editar Familia)
+   ======================================================== */
+
+/* Inputs de archivos nativos (Adjuntar Evidencia) y sus botones */
+.content-principal input[type="file"],
+.main-content input[type="file"],
+.form-control[type="file"] {
+    background-color: #0f172a !important;
+    color: #94a3b8 !important;
+    border: 1px solid #334155 !important;
+}
+
+/* El botón de "Seleccionar archivo" nativo del explorador */
+.content-principal input[type="file"]::file-selector-button,
+.main-content input[type="file"]::file-selector-button {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.content-principal input[type="file"]::file-selector-button:hover {
+    background-color: #475569 !important;
+}
+
+/* Selects y menús desplegables de catálogos (Seleccionar Insumo) */
+.content-principal select,
+.main-content select,
+.form-select {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Cajas contenedoras internas blancas o grises claras de listas (como los materiales seleccionados) */
+.content-principal .border.bg-light,
+.main-content .border.bg-light,
+.bg-light {
+    background-color: #212b38 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* ========================================================
+   12. 🛡️ BLINDAJE ANTI-REBELDÍA PARA EL PASO 3 DE EDICIÓN
+   ======================================================== */
+
+/* Forzar tarjeta y cuerpo de tarjeta a oscuro en formularios de edición */
+.content-principal form .card,
+.main-content form .card,
+.content-principal form .card-body,
+.main-content form .card-body {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Neutralizar cualquier clase bg-white o bg-light que se cuele en los formularios */
+.content-principal form .bg-white,
+.main-content form .bg-white,
+.content-principal form .bg-light,
+.main-content form .bg-light {
+    background-color: #212b38 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Forzar los inputs de texto, textareas y selects dentro del formulario */
+.content-principal form input[type="text"],
+.content-principal form input[type="number"],
+.content-principal form textarea,
+.content-principal form select,
+.main-content form input[type="text"],
+.main-content form input[type="number"],
+.main-content form textarea,
+.main-content form select {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Cajas de elementos seleccionados (como la lista de materiales agregados) */
+.content-principal form .list-group-item,
+.main-content form .list-group-item,
+.content-principal form div[style*="background"],
+.main-content form div[style*="background"] {
+    background-color: #1a222c !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+/* ========================================================
+   13. 🛠️ OPTIMIZACIÓN DE TABLA RELEVAMIENTOS (Escritorio)
+   ======================================================== */
+
+/* Truncar textos largos (como el solicitante) con puntos suspensivos */
+.col-truncada {
+    max-width: 180px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Anclar la columna de acciones a la derecha para que no se pierda al hacer scroll */
+.table td.col-acciones, 
+.table th.col-acciones {
+    position: sticky !important;
+    right: 0;
+    background-color: #1e293b !important; /* Mismo fondo oscuro de las filas */
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+/* Compactar textos largos en la columna de Relevador */
+#tabla-relevamientos-body td:nth-child(6) {
+    font-size: 0.85rem !important;
+    line-height: 1.1 !important;
+}
+
+/* ========================================================
+   14. 🚀 EXPANSIÓN DE PANEL (Eliminar efecto mosaico)
+   ======================================================== */
+   .main-content {
+    padding: 15px !important; /* Reducimos el margen general */
+    max-width: 100% !important; /* Forzamos a que use toda la pantalla */
+}
+
+.main-content-wrapper {
+    background-color: #1a222c; /* Igualamos el fondo exterior al interior para fundirlo */
+}
+
+/* Quitamos los bordes y redondeos de la tarjeta principal para que se funda con la pantalla */
+.content-principal > .card,
+.main-content > .card {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 10px !important; 
+}
+
+/* ========================================================
+   15. 🧨 MODO FLUIDO AISLADO (Solo para Lista de Relevamientos)
+   ======================================================== */
+
+/* Restauramos el fondo oscuro global para que todo encaje */
+body, .main-content-wrapper {
+    background-color: #1a222c !important; 
+}
+
+/* 1. Aseguramos que el contenedor general mantenga su padding original para el Panel Principal */
+.main-content {
+    padding: 30px !important; /* Si tu padding original era otro, ajustalo aquí */
+    max-width: 100%;
+}
+
+/* 2. Clase maestra para aislar la expansión: "come" el padding del contenedor hacia afuera */
+.vista-relevamientos-fluida {
+    margin: -15px !important; /* Margen negativo más suave */
+    padding: 15px 15px 5px 15px !important; 
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    width: calc(100% + 30px) !important; /* Compensa exactamente el margen negativo */
+    max-width: none !important;
+}
+
+/* 3. Limpiamos bordes internos solo dentro de esta vista fluida */
+.vista-relevamientos-fluida .table-responsive {
+    border: none !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    margin-bottom: 0 !important;
+}
+
+.vista-relevamientos-fluida .filtros-relevamiento-box {
+    border: none !important;
+    background-color: #1e293b !important; 
+    border-radius: 0 !important;
+}
+
+/* 4. Compactación inferior del paginador aislada */
+.vista-relevamientos-fluida #contenedor-paginacion-relevamientos,
+.vista-relevamientos-fluida #contenedor-paginacion-relevamientos > div {
+    margin-top: 0 !important;
+    padding-top: 5px !important;
+    padding-bottom: 0 !important;
+}
+
+/* ========================================================
+   17. 📉 COMPACTACIÓN INFERIOR (Paginación y Tabla)
+   ======================================================== */
+
+/* 1. Eliminar el margen sobrante debajo de la tabla */
+.table-responsive,
+.table {
+    margin-bottom: 0 !important;
+}
+
+/* 2. Neutralizar los márgenes superiores (mt-3 y mt-2) del paginador */
+#contenedor-paginacion-relevamientos {
+    margin-top: 0 !important;
+    padding-top: 5px !important; /* Apenas un respiro para que no toque la línea */
+}
+
+#contenedor-paginacion-relevamientos > div {
+    margin-top: 0 !important;
+    padding-top: 5px !important;
+    padding-bottom: 0 !important;
+}
+
+/* 3. Ajustar el padding inferior de la tarjeta principal (pisando el padding de 20px anterior) */
+.main-content > .card,
+.content-principal > .card {
+    padding-bottom: 5px !important; 
+}
+
+/* Transición suave para cuando cambia el texto del contador */
+#dash-relevamientos-nuevos,
+#dash-familias-asistidas,
+#dash-solicitudes-pendientes,
+#dash-ordenes-aprobadas,
+#dash-entregas-reportes {
+    transition: color 0.3s ease;
+}
+
+/* ========================================================
+   18. 🖱️ INTERACTIVIDAD DE TARJETAS (Dashboard)
+   ======================================================== */
+   .kpi-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+    filter: brightness(1.1);
+}
+
+/* Asegurar que los mensajes de tabla vacía ocupen todo el ancho en móviles */
+#tabla-familias-body td[colspan] {
+    white-space: normal !important;
+    text-align: center !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+/* Aclarar el texto de fondo (placeholder) en áreas de texto */
+.content-principal textarea::placeholder,
+.main-content textarea::placeholder,
+form textarea::placeholder {
+    color: #94a3b8 !important; 
+    opacity: 1 !important; /* Forzar opacidad (algunos navegadores la bajan por defecto) */
+}
+/* Ocultar botón de nuevo relevamiento para el rol relevador */
+body.rol-relevador #btn-nuevo-relevamiento {
+    display: none !important;
+}
+
+/* ========================================================
+   MODAL DE USUARIOS: ESTILO DEFINITIVO (BLANCO Y AMARILLO)
+   ======================================================== */
+   #modalUsuario .modal-content {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.8) !important;
+}
+
+#modalUsuario .modal-header {
+    background-color: #111822 !important; /* Un tono más oscuro que el cuerpo para dar profundidad */
+    color: #ffffff !important;
+    border-bottom: 2px solid #3b82f6 !important; /* Línea azul elegante de separación */
+    padding: 1.25rem 1.5rem !important;
+}
+
+#modalUsuario .modal-header .modal-title,
+#modalUsuario .modal-header h5 {
+    color: #ffffff !important; /* Título estrictamente blanco */
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+}
+
+#modalUsuario .modal-header .text-warning {
+    color: #fbbf24 !important; /* Amarillo brillante visible para el icono */
+}
+
+#modalUsuario .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.9;
+}
+
+#modalUsuario .modal-body {
+    background-color: #1a222c !important;
+    padding: 1.5rem !important;
+}
+/* ========================================================
+   MODAL DE AUDITORÍA DE RELEVAMIENTO Y FAMILIAS (Definitivo)
+   ======================================================== */
+   #modalAuditoriaSolicitud .modal-content {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.8) !important;
+}
+
+#modalAuditoriaSolicitud .modal-header {
+    background-color: #111822 !important;
+    border-bottom: 2px solid #3b82f6 !important;
+    color: #ffffff !important;
+    padding: 1.25rem 1.5rem !important;
+}
+
+#modalAuditoriaSolicitud .modal-title {
+    color: #ffffff !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+}
+
+#modalAuditoriaSolicitud .modal-title .text-warning {
+    color: #fbbf24 !important;
+}
+
+#modalAuditoriaSolicitud .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.9;
+}
+
+#modalAuditoriaSolicitud .modal-body {
+    background-color: #1a222c !important;
+    padding: 1.5rem !important;
+}
+
+/* Textos de metadatos superiores del relevamiento en la auditoría */
+#modalAuditoriaSolicitud .modal-body small,
+#modalAuditoriaSolicitud .modal-body span,
+#modalAuditoriaSolicitud .modal-body div {
+    color: #cbd5e1 !important;
+}
+
+/* Tabla interna de familias e insumos dentro de la auditoría */
+#modalAuditoriaSolicitud .table-responsive {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 6px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+#modalAuditoriaSolicitud table {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    margin-bottom: 0 !important;
+    font-size: 0.8rem !important;
+}
+
+#modalAuditoriaSolicitud table th {
+    background-color: #0f172a !important;
+    color: #93c5fd !important;
+    border-color: #334155 !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.5rem !important;
+    white-space: nowrap;
+}
+
+#modalAuditoriaSolicitud table td {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+    vertical-align: middle !important;
+    padding: 0.45rem 0.5rem !important;
+}
+
+/* Fila de totales acumulados dentro de la tabla */
+#modalAuditoriaSolicitud table tr.table-secondary td {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}

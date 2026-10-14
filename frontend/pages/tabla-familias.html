@@ -1,0 +1,76 @@
+<div class="card shadow-sm p-4 animate__animated animate__fadeIn">
+    <div class="bg-light p-3 rounded border mb-4">
+        <h5 class="fw-bold text-secondary mb-2"><i class="bi bi-info-circle-fill text-info"></i> Contexto Territorial</h5>
+
+        <!-- 🌟 ESTE ES EL NUEVO CONTENEDOR PARA EL AVISO -->
+    <div id="contenedor-alerta-devolucion"></div>
+
+
+        <div class="row g-2 text-dark small" id="contexto-relevamiento-activo">
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark m-0"><i class="bi bi-people-fill text-primary"></i> Familias Damnificadas</h5>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm d-flex align-items-center gap-1" onclick="mostrarFormularioNuevaFamilia()">
+                <i class="bi bi-person-plus-fill"></i> Agregar Nueva Familia
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="verListaRelevamientos()">
+                <i class="bi bi-arrow-left"></i> Volver a Relevamientos
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== BARRA DE FILTROS, ORDEN Y PAGINACIÓN LOCAL ==================== -->
+    <div class="row g-2 mb-3 p-3 bg-dark rounded border border-secondary align-items-center">
+        <!-- Buscador: Ocupa todo el ancho en cel (col-12), y un tercio en escritorio (col-md-4) -->
+        <div class="col-12 col-md-4 mb-2 mb-md-0">
+            <label for="inputBusquedaApellido" class="form-label fw-semibold small text-light">Buscar por Apellido o DNI</label>
+            <input type="text" id="inputBusquedaApellido" class="form-control form-control-sm bg-dark text-light border-secondary" placeholder="Ej: Gómez o DNI..." oninput="manejarCambioFiltros()">
+        </div>
+        
+        <!-- Ordenar listado: Ocupa la mitad en cel (col-6), y un tercio en escritorio (col-md-4) -->
+        <div class="col-6 col-md-4">
+            <label for="selectOrdenar" class="form-label fw-semibold small text-light">Ordenar listado</label>
+            <select id="selectOrdenar" class="form-select form-select-sm bg-dark text-light border-secondary" onchange="manejarCambioFiltros()">
+                <option value="">Orden N°</option>
+                <option value="alfabetico">Apellido (A-Z)</option>
+                <option value="urgencia">Urgencia (Alta a Baja)</option>
+                <option value="asistencia">Estado de Asistencia</option>
+            </select>
+        </div>
+    
+        <!-- Mostrar registros: Ocupa la mitad en cel (col-6), y un tercio en escritorio (col-md-4) -->
+        <div class="col-6 col-md-4">
+            <label for="selectPaginacion" class="form-label fw-semibold small text-light">Mostrar registros</label>
+            <select id="selectPaginacion" class="form-select form-select-sm bg-dark text-light border-secondary" onchange="manejarCambioFiltros()">
+                <option value="10">10 por página</option>
+                <option value="20">20 por página</option>
+                <option value="50">50 por página</option>
+                <option value="todos">Todos</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle border rounded">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width: 8%" class="text-center">N°</th>
+                    <th style="width: 15%">DNI Jefe/a</th>
+                    <th style="width: 32%">Apellido y Nombre</th>
+                    <th style="width: 12%" class="text-center">Integrantes</th>
+                    <th style="width: 13%">Urgencia</th>
+                    <th style="width: 10%" class="text-center">Asistencia</th>
+                    <th style="width: 10%" class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-familias-body">
+                <!-- Los registros se cargan dinámicamente aquí -->
+                </tbody>
+        </table>
+    </div>
+    <!-- Controles de Paginación Local -->
+    <div id="contenedor-paginacion" class="d-flex justify-content-between align-items-center mt-3"></div>
+</div>

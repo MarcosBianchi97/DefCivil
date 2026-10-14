@@ -1,0 +1,57 @@
+<div class="container-fluid py-4 animate__animated animate__fadeIn" id="seccion-principal-provisiones">
+    <!-- Cabecera Limpia (Gemela a Solicitudes) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-secondary">
+        <div>
+            <h2 class="text-white fw-bold mb-1">
+                <i class="bi bi-box-seam text-warning me-2"></i> Gestión de Provisiones y Retornos
+            </h2>
+            <p class="text-muted small mb-0">Control y seguimiento de insumos, recursos y retornos en tránsito vinculados a relevamientos.</p>
+        </div>
+    </div>
+
+    <!-- Tarjeta Principal Oscura Unificada -->
+    <div class="card bg-dark text-light border-secondary shadow-sm p-4 mb-4">
+        
+        <!-- Barra de Herramientas (Buscador y Paginación perfectamente alineados) -->
+        <div class="row g-3 mb-4 align-items-center justify-content-between">
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-dark text-muted border-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" id="inputBusquedaProvisiones" class="form-control bg-dark text-light border-secondary shadow-sm" placeholder="Buscar por código, destino o estado..." oninput="window.manejarFiltrosProvisiones && window.manejarFiltrosProvisiones()">
+                </div>
+            </div>
+            <div class="col-md-auto d-flex align-items-center gap-2">
+                <label for="selectPaginacionProvisiones" class="small text-muted mb-0">Mostrar:</label>
+                <select id="selectPaginacionProvisiones" class="form-select form-select-sm bg-dark text-light border-secondary shadow-sm w-auto" onchange="window.manejarFiltrosProvisiones && window.manejarFiltrosProvisiones()">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="todos">Todos</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla Principal de Provisiones (Estilo Dark idéntico a Solicitudes) -->
+        <div class="table-responsive mb-3">
+            <table class="table table-dark table-hover align-middle mb-0 border border-secondary" id="tablaProvisiones">
+                <thead class="table-secondary text-dark fw-bold small">
+                    <tr>
+                        <th class="ps-3">ID / Ref.</th>
+                        <th>Relevamiento / Ubicación</th>
+                        <th>Detalle / Insumos</th>
+                        <th>Destino</th>
+                        <th>Estado</th>
+                        <th>Observaciones</th>
+                        <th class="text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-provisiones">
+                    <!-- Se renderiza dinámicamente desde JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contenedor Dinámico de Paginación Inferior -->
+        <div id="contenedor-paginacion-provisiones"></div>
+    </div>
+</div>
