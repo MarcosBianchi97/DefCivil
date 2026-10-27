@@ -8,7 +8,10 @@
     "start": "node backend/app.js",
     "dev": "nodemon backend/app.js",
     "frontend": "live-server frontend/pages/",
-    "db:create": "mysql -u root -p < backend/database/defcivilBD.sql"
+    "db:create": "mysql -u root -p < backend/database/defcivilBD.sql",
+    "db:up": "docker compose --env-file backend/.env up -d",
+    "db:down": "docker compose --env-file backend/.env down",
+    "db:reset": "docker compose --env-file backend/.env down -v"
   },
   "keywords": [
     "defensa-civil",
