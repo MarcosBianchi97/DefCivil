@@ -1,0 +1,50 @@
+# Variante autónoma: levanta su PROPIO PostgreSQL junto al sitio. Sirve para probar el
+# proyecto en una PC que no tiene el Postgres de DefCiv. Los datos NO se comparten con
+# nadie: es una base nueva y vacía en un volumen local.
+#
+#   docker compose --env-file backend/.env -f docker-compose.standalone.yml up -d --build
+#
+# --env-file hace que DB_NAME / DB_USER / DB_PASSWORD de backend/.env también inicialicen
+# el contenedor de Postgres (Compose no lee backend/.env por su cuenta).
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-defciv}
+      POSTGRES_USER: ${DB_USER:-defciv}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Definí DB_PASSWORD en backend/.env}
+    volumes:
+      - civilvero_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  civil-vero:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - backend/.env
+    environment:
+      DB_DIALECT: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DATABASE_URL: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${APP_HOST_PORT:-4000}:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/status').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  civilvero_pgdata:

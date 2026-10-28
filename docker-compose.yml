@@ -1,0 +1,39 @@
+# Sitio de Defensa Civil (Civil Vero) + su API. NO crea una base propia: se conecta al
+# PostgreSQL que ya corre en el compose de DefCivil (contenedor "defciv-postgres"), así
+# ambos proyectos comparten la misma base. Levantar primero ese compose.
+#
+#   docker compose up -d --build
+#   -> http://localhost:4000 (sitio)   http://localhost:4000/admin.html (panel)
+#
+# Configuración en backend/.env (copiar de backend/.env.example).
+services:
+  civil-vero:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - backend/.env
+    environment:
+      # Dentro de la red de Docker se usa el servicio "postgres" y su puerto interno,
+      # no localhost:5433 (que es solo el puerto publicado en el host).
+      DB_DIALECT: postgres
+      DB_HOST: ${DB_HOST_DOCKER:-postgres}
+      DB_PORT: "5432"
+      DATABASE_URL: ""
+    ports:
+      - "${APP_HOST_PORT:-4000}:4000"
+    networks:
+      - defcivil
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/status').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  defcivil:
+    # Red del compose de DefCivil. Ver el nombre real con: docker network ls
+    external: true
+    name: ${DEFCIVIL_NETWORK:-defciv-30-main_default}

@@ -1,6 +1,6 @@
 // Login, cambio de contraseña y gestión de usuarios admin hablan con el backend real
-// (ver carpeta backend/). Cambiar esta URL si el backend corre en otro host/puerto.
-const API_BASE_URL = window.DC_API_BASE_URL || "http://localhost:4000/api";
+// (ver carpeta backend/). La URL base se define en js/config.js.
+const API_BASE_URL = window.DC_API_BASE_URL;
 
 // Envuelve fetch agregando la URL base y el token de sesión (si hay). Si el backend
 // responde 401/403 (token vencido o inválido), cierra la sesión local.
@@ -23,59 +23,18 @@ async function apiFetch(path, options) {
   return { ok: respuesta.ok, status: respuesta.status, datos: datos };
 }
 
-const noticiasPorDefecto = [
-  {
-    id: 1,
-    tag: "Operativo",
-    titulo: "Comité de Emergencia por temporal",
-    imagen: "temporal.jpg",
-    descripcion: "Ante lluvias torrenciales, el municipio activó el Comité de Emergencia y habilitó la línea 421-7999 para que los vecinos afectados soliciten asistencia o informen situaciones de riesgo.",
-    fecha: "2026-01-15",
-    estado: "aprobada",
-    autor: "admin"
-  },
-  {
-    id: 2,
-    tag: "Capacitación",
-    titulo: "Capacitación en uso de matafuegos",
-    imagen: "Capacitacion-matafuegos.jpg",
-    descripcion: "Docentes y personal de jardines de infantes recibieron una capacitación práctica sobre manejo de extintores portátiles, como parte del plan permanente de refuerzo en prevención de incendios.",
-    fecha: "2026-02-10",
-    estado: "aprobada",
-    autor: "admin"
-  },
-  {
-    id: 3,
-    tag: "Alerta",
-    titulo: "Precaución por crecida del Río Dulce",
-    imagen: "imagenRioDulce.jpg",
-    descripcion: "Ante el aumento del caudal del río, se reforzó la vigilancia en la zona de los balnearios y se recomendó a los vecinos no ingresar al cauce y seguir las indicaciones de los equipos apostados en el lugar.",
-    fecha: "2026-03-05",
-    estado: "aprobada",
-    autor: "admin"
-  }
-];
-
 let rolActual = sessionStorage.getItem("dc_rol") || "admin";
 
-function normalizarNoticia(noticia, indice) {
-  return {
-    ...noticia,
-    id: Number(noticia.id) || indice + 1,
-    fecha: noticia.fecha || "2026-01-01",
-    estado: noticia.estado || "aprobada",
-    autor: noticia.autor || "admin"
-  };
-}
+// Las noticias ya no viven en localStorage: se leen/escriben vía la API
+// (backend/routes/noticiaRoutes.js). Se guarda el último listado recibido para que el
+// filtrado/orden client-side (renderNoticias) no tenga que ir al servidor por cada cambio
+// de filtro — solo se vuelve a pedir después de crear/editar/cambiar estado.
+let noticiasCache = [];
 
-function cargarNoticias() {
-  const guardadas = localStorage.getItem("dc_noticias");
-  const noticias = guardadas ? JSON.parse(guardadas) : noticiasPorDefecto;
-  return noticias.map(normalizarNoticia);
-}
-
-function guardarNoticias(noticias) {
-  localStorage.setItem("dc_noticias", JSON.stringify(noticias));
+async function cargarNoticias() {
+  const respuesta = await apiFetch("/noticias");
+  noticiasCache = respuesta.ok ? respuesta.datos.noticias || [] : [];
+  return noticiasCache;
 }
 
 const loginScreen = document.getElementById("login-screen");
@@ -123,7 +82,9 @@ function mostrarPanel() {
   actualizarIdentidadRol();
   document.getElementById("menu-gestion-usuarios").classList.toggle("d-none", rolActual !== "superadmin");
   document.getElementById("editor-column").classList.toggle("d-none", rolActual === "superadmin");
+  document.getElementById("tab-alerta-item").classList.toggle("d-none", rolActual !== "superadmin");
   renderNoticias();
+  if (rolActual === "superadmin") cargarAlerta();
 }
 
 function actualizarIdentidadRol() {
@@ -391,6 +352,39 @@ document.querySelectorAll("#panel-tabs .nav-link").forEach(function (boton) {
   });
 });
 
+// Nivel de alerta vigente (solo superadmin): se lee y se publica vía /api/alerta
+const alertaForm = document.getElementById("alerta-form");
+const alertaNivel = document.getElementById("alerta-nivel");
+const alertaMensaje = document.getElementById("alerta-mensaje");
+const alertaActualizada = document.getElementById("alerta-actualizada");
+
+function pintarAlertaActual(alerta) {
+  if (!alerta) return;
+  alertaNivel.value = alerta.nivel;
+  alertaMensaje.value = alerta.mensaje || "";
+  alertaActualizada.textContent = "Última actualización: " + new Date(alerta.actualizadaEl).toLocaleString("es-AR");
+  alertaActualizada.classList.remove("d-none");
+}
+
+async function cargarAlerta() {
+  const respuesta = await apiFetch("/alerta");
+  if (respuesta.ok) pintarAlertaActual(respuesta.datos.alerta);
+}
+
+alertaForm.addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const respuesta = await apiFetch("/alerta", {
+    method: "PUT",
+    body: JSON.stringify({ nivel: alertaNivel.value, mensaje: alertaMensaje.value }),
+  });
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo actualizar el nivel de alerta.", "danger");
+    return;
+  }
+  pintarAlertaActual(respuesta.datos.alerta);
+  mostrarToast(respuesta.datos.mensaje, "success");
+});
+
 const listaNoticias = document.getElementById("lista-noticias");
 const noticiaForm = document.getElementById("noticia-form");
 const noticiaFormTitle = document.getElementById("noticia-form-title-text");
@@ -429,19 +423,41 @@ function rutaImagen(imagen) {
   return imagen && imagen.startsWith("data:") ? imagen : "img/" + (imagen || "");
 }
 
-function mostrarToast(mensaje, tipo) {
+// deshacer (opcional): función a ejecutar si se clickea el botón "Deshacer". Mientras
+// esté presente, el toast dura 8s en vez de 3s — es la ventana real que tiene el usuario
+// para arrepentirse (el backend la respeta con un margen extra, ver noticiaController.js).
+function mostrarToast(mensaje, tipo, deshacer) {
   const toastElement = document.createElement("div");
   toastElement.className = "toast align-items-center text-bg-" + (tipo || "primary") + " border-0";
   toastElement.setAttribute("role", "status");
   toastElement.setAttribute("aria-live", "polite");
   toastElement.setAttribute("aria-atomic", "true");
+  const botonDeshacer = deshacer
+    ? '<button type="button" class="btn btn-sm btn-light ms-3 btn-deshacer-toast">Deshacer</button>'
+    : "";
   toastElement.innerHTML =
-    '<div class="d-flex"><div class="toast-body">' + escaparHTML(mensaje) + '</div>' +
+    '<div class="d-flex"><div class="toast-body d-flex align-items-center">' + escaparHTML(mensaje) + botonDeshacer + '</div>' +
     '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button></div>';
   toastContainer.appendChild(toastElement);
-  const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 3000 });
+  const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: deshacer ? 8000 : 3000 });
   toastElement.addEventListener("hidden.bs.toast", function () { toastElement.remove(); });
+  if (deshacer) {
+    toastElement.querySelector(".btn-deshacer-toast").addEventListener("click", function () {
+      toast.hide();
+      deshacer();
+    });
+  }
   toast.show();
+}
+
+const badgeNoticiasPendientes = document.getElementById("badge-noticias-pendientes");
+
+// Solo le importa a superadmin (es quien aprueba/rechaza); admin no lo ve.
+function actualizarBadgePendientes(noticias) {
+  const pendientes = noticias.filter(noticia => noticia.estado === "pendiente").length;
+  const mostrar = rolActual === "superadmin" && pendientes > 0;
+  badgeNoticiasPendientes.textContent = String(pendientes);
+  badgeNoticiasPendientes.classList.toggle("d-none", !mostrar);
 }
 
 function actualizarFiltroAnio(noticias) {
@@ -467,8 +483,14 @@ noticiaImagenInput.addEventListener("change", function () {
   lector.readAsDataURL(archivo);
 });
 
-function renderNoticias() {
-  const todasLasNoticias = cargarNoticias();
+async function renderNoticias() {
+  await cargarNoticias();
+  pintarNoticias();
+}
+
+function pintarNoticias() {
+  const todasLasNoticias = noticiasCache;
+  actualizarBadgePendientes(todasLasNoticias);
   actualizarFiltroAnio(todasLasNoticias);
   const estado = filtroEstado.value;
   const anio = filtroAnio.value;
@@ -506,17 +528,21 @@ function renderNoticias() {
     const puedeEditar = rolActual === "admin" && noticia.autor === rolActual;
     const puedeOcultar = rolActual === "admin" && noticia.autor === rolActual && noticia.estado !== "eliminada";
     const accionesAdmin = puedeEditar
-      ? noticia.estado === "pendiente"
+      ? (noticia.estado === "pendiente"
         ? '<button class="btn btn-sm btn-outline-primary btn-editar" data-id="' + noticia.id + '">Editar</button>'
           + '<button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="' + noticia.id + '">Descartar</button>'
         : '<button class="btn btn-sm btn-outline-primary btn-editar" data-id="' + noticia.id + '">Editar</button>'
           + (puedeOcultar ? '<button class="btn btn-sm btn-outline-danger btn-ocultar" data-id="' + noticia.id + '">Ocultar publicación</button>' : '')
+          // Solo puede borrar definitivamente lo propio ya rechazado/ocultado — nunca algo
+          // pendiente (para eso está "Descartar") ni algo todavía aprobado/publicado.
+          + (noticia.estado === "eliminada" ? '<button class="btn btn-sm btn-outline-secondary btn-borrar-definitivo" data-id="' + noticia.id + '">Eliminar</button>' : ''))
       : "";
     const accionesSuperadmin = rolActual === "superadmin"
       ? '<button class="btn btn-sm btn-outline-primary btn-preview" data-id="' + noticia.id + '">Vista previa</button>'
         + (noticia.estado === "pendiente" ? '<button class="btn btn-sm btn-success btn-aprobar" data-id="' + noticia.id + '">Aprobar</button>' : '')
         + (noticia.estado === "pendiente" ? '<button class="btn btn-sm btn-danger btn-rechazar" data-id="' + noticia.id + '">Rechazar</button>' : '')
         + (noticia.estado === "aprobada" ? '<button class="btn btn-sm btn-outline-danger btn-ocultar-superadmin" data-id="' + noticia.id + '">Ocultar publicación</button>' : '')
+        + '<button class="btn btn-sm btn-outline-secondary btn-borrar-definitivo" data-id="' + noticia.id + '">Eliminar</button>'
       : "";
     item.innerHTML =
       '<div class="d-flex justify-content-between align-items-start gap-2">' +
@@ -571,11 +597,14 @@ function renderNoticias() {
   listaNoticias.querySelectorAll(".btn-preview").forEach(function (btn) {
     btn.addEventListener("click", function () { mostrarVistaPrevia(Number(btn.dataset.id)); });
   });
+
+  listaNoticias.querySelectorAll(".btn-borrar-definitivo").forEach(function (btn) {
+    btn.addEventListener("click", function () { eliminarNoticiaDefinitivamente(Number(btn.dataset.id)); });
+  });
 }
 
 function editarNoticia(id) {
-  const noticias = cargarNoticias();
-  const noticia = noticias.find(n => n.id === id);
+  const noticia = noticiasCache.find(n => n.id === id);
   if (!noticia) return;
 
   document.getElementById("noticia-id").value = noticia.id;
@@ -592,30 +621,63 @@ function editarNoticia(id) {
   btnCancelarNoticia.classList.remove("d-none");
 }
 
-function cambiarEstado(id, estado, motivo) {
-  const noticias = cargarNoticias();
-  const noticia = noticias.find(n => n.id === id);
-  if (!noticia) return;
+async function cambiarEstado(id, estado, motivo) {
+  const respuesta = await apiFetch("/noticias/" + id + "/estado", {
+    method: "PATCH",
+    body: JSON.stringify({ estado: estado, motivo: motivo })
+  });
 
-  const estadoAnterior = noticia.estado;
-  noticia.estado = estado;
-  if (rolActual === "admin" && estadoAnterior === "aprobada" && estado === "pendiente") {
-    noticia.bajadaPorAdmin = true;
-    noticia.motivoBajada = motivo || "";
-  } else if (estado === "eliminada" && motivo) {
-    noticia.motivoRechazo = motivo;
-  } else if (estado === "aprobada") {
-    delete noticia.motivoRechazo;
-    delete noticia.bajadaPorAdmin;
-    delete noticia.motivoBajada;
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo actualizar el estado de la noticia.", "warning");
+    return;
   }
-  guardarNoticias(noticias);
-  renderNoticias();
-  const mensajes = {
-    aprobada: "Noticia aprobada y publicada.",
-    eliminada: rolActual === "superadmin" ? "Noticia rechazada y ocultada." : "Noticia ocultada."
-  };
-  mostrarToast(mensajes[estado] || "Estado de la noticia actualizado.", estado === "aprobada" ? "success" : "warning");
+
+  await renderNoticias();
+  mostrarToast(
+    respuesta.datos.mensaje || "Estado de la noticia actualizado.",
+    estado === "aprobada" ? "success" : "warning",
+    function () { deshacerCambioEstado(id); }
+  );
+}
+
+async function deshacerCambioEstado(id) {
+  const respuesta = await apiFetch("/noticias/" + id + "/deshacer", { method: "POST" });
+
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo deshacer el cambio.", "warning");
+    return;
+  }
+
+  await renderNoticias();
+  mostrarToast("Cambio deshecho.", "success");
+}
+
+// Borrado definitivo con deshacer real: no se llama a DELETE hasta que pasan los 8s sin
+// que se toque "Deshacer" — mientras tanto la noticia solo desaparece de la vista
+// (optimista), nada se tocó en el backend todavía, así que deshacer es gratis (solo
+// cancela el timer y vuelve a pintar).
+const borradosPendientes = {};
+
+function eliminarNoticiaDefinitivamente(id) {
+  if (borradosPendientes[id]) return;
+
+  noticiasCache = noticiasCache.filter(function (noticia) { return noticia.id !== id; });
+  pintarNoticias();
+
+  borradosPendientes[id] = setTimeout(async function () {
+    delete borradosPendientes[id];
+    const respuesta = await apiFetch("/noticias/" + id, { method: "DELETE" });
+    if (!respuesta.ok) {
+      mostrarToast(respuesta.datos.mensaje || "No se pudo eliminar la noticia.", "warning");
+      await renderNoticias();
+    }
+  }, 8000);
+
+  mostrarToast("Noticia eliminada.", "danger", function () {
+    clearTimeout(borradosPendientes[id]);
+    delete borradosPendientes[id];
+    renderNoticias();
+  });
 }
 
 function solicitarOcultamiento(id) {
@@ -646,7 +708,7 @@ btnConfirmarOcultar.addEventListener("click", function () {
     return;
   }
 
-  const noticia = cargarNoticias().find(n => n.id === noticiaPendienteDeOcultar);
+  const noticia = noticiasCache.find(n => n.id === noticiaPendienteDeOcultar);
   const esBajadaDeNoticiaAprobada = rolActual === "admin" && noticia && noticia.estado === "aprobada";
   cambiarEstado(noticiaPendienteDeOcultar, esBajadaDeNoticiaAprobada ? "pendiente" : "eliminada", motivo);
   noticiaPendienteDeOcultar = null;
@@ -672,7 +734,7 @@ document.getElementById("confirmar-publicacion-modal").addEventListener("hidden.
 });
 
 function mostrarVistaPrevia(id) {
-  const noticia = cargarNoticias().find(n => n.id === id);
+  const noticia = noticiasCache.find(n => n.id === id);
   if (!noticia) return;
 
   document.getElementById("vista-previa-contenido").innerHTML =
@@ -733,33 +795,27 @@ function restaurarBorradorNoticia() {
 
 document.addEventListener("DOMContentLoaded", restaurarBorradorNoticia);
 
-noticiaForm.addEventListener("submit", function (e) {
+noticiaForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const id = document.getElementById("noticia-id").value;
-  const noticias = cargarNoticias();
-
   const datos = {
     tag: document.getElementById("noticia-tag").value.trim(),
     titulo: document.getElementById("noticia-titulo").value.trim(),
     imagen: noticiaImagenData.value,
     descripcion: document.getElementById("noticia-descripcion").value.trim(),
-    fecha: noticiaFecha.value,
-    estado: "pendiente",
-    autor: rolActual
+    fecha: noticiaFecha.value
   };
 
-  if (id) {
-    const index = noticias.findIndex(n => n.id === Number(id));
-    if (index === -1 || noticias[index].autor !== rolActual) return;
-    const estadoEditado = noticias[index].estado === "aprobada" ? "pendiente" : datos.estado;
-    noticias[index] = { ...noticias[index], ...datos, estado: estadoEditado, id: Number(id) };
-  } else {
-    const nuevoId = noticias.length ? Math.max(...noticias.map(n => n.id)) + 1 : 1;
-    noticias.push({ id: nuevoId, ...datos });
+  const respuesta = id
+    ? await apiFetch("/noticias/" + id, { method: "PUT", body: JSON.stringify(datos) })
+    : await apiFetch("/noticias", { method: "POST", body: JSON.stringify(datos) });
+
+  if (!respuesta.ok) {
+    mostrarToast(respuesta.datos.mensaje || "No se pudo guardar la noticia.", "warning");
+    return;
   }
 
-  guardarNoticias(noticias);
   localStorage.removeItem("noticia_borrador");
   noticiaForm.reset();
   document.getElementById("noticia-id").value = "";
@@ -768,12 +824,12 @@ noticiaForm.addEventListener("submit", function (e) {
   noticiaImagenPreview.classList.add("d-none");
   noticiaFormTitle.textContent = "Nueva noticia";
   btnCancelarNoticia.classList.add("d-none");
-  renderNoticias();
-  mostrarToast(id ? "Noticia actualizada y enviada a revisión." : "Noticia guardada y enviada a revisión.", "success");
+  await renderNoticias();
+  mostrarToast(respuesta.datos.mensaje || (id ? "Noticia actualizada y enviada a revisión." : "Noticia guardada y enviada a revisión."), "success");
 });
 
 [filtroEstado, filtroAnio, filtroOrden].forEach(function (filtro) {
-  filtro.addEventListener("change", renderNoticias);
+  filtro.addEventListener("change", pintarNoticias);
 });
 
 noticiaFecha.value = new Date().toISOString().slice(0, 10);

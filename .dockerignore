@@ -1,0 +1,11 @@
+.git
+.vscode
+CLAUDE.md
+**/node_modules
+**/.env
+**/*.sqlite
+**/*.log
+package-lock.json
+!backend/package-lock.json
+*.svg
+!img/**

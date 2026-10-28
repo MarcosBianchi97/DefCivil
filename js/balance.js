@@ -11,15 +11,14 @@ function actualizarEstadoBalance(mensaje) {
   if (estadoBalance) estadoBalance.textContent = mensaje;
 }
 
-// 1. Datos genéricos para que no quede vacío si el JSON tarda
-const datosGenericos = [
-  { "mes": "Enero", "relevamientos": 12, "familias_asistidas": 25, "reportes": 8 },
-  { "mes": "Febrero", "relevamientos": 18, "familias_asistidas": 40, "reportes": 15 },
-  { "mes": "Marzo", "relevamientos": 22, "familias_asistidas": 50, "reportes": 18 },
-  { "mes": "Abril", "relevamientos": 15, "familias_asistidas": 30, "reportes": 10 }
-];
+// Las estadísticas salen de la base de DefCivil (relevamientos, familias, provisiones) vía el backend
+const API_ESTADISTICAS = (window.DC_API_BASE_URL) + "/estadisticas";
+const NOMBRES_MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-let datosAnuales = datosGenericos;
+// 1. Mientras llegan los datos reales (o si fallan) se muestran los 12 meses en cero
+const mesesEnCero = NOMBRES_MESES.map(mes => ({ mes, relevamientos: 0, familias_asistidas: 0, reportes: 0 }));
+
+let datosAnuales = mesesEnCero;
 let datosPorAnio = {};
 let chart = null;
 let animacionCompletada = false; // Control para ejecutar la animación solo una vez
@@ -75,7 +74,7 @@ function cargarAnio(anio) {
   datosAnuales = datosPorAnio[anio];
   pintarTotales();
   pintarGrafico(selectMetrica.value);
-  actualizarEstadoBalance('Balance actualizado. El gráfico muestra los datos disponibles de enero a septiembre.');
+  actualizarEstadoBalance('Balance actualizado. El gráfico muestra los datos mensuales del año seleccionado.');
 }
 
 // 4. Configuración del "Vigilante" (Intersection Observer)
@@ -116,9 +115,8 @@ function pintarGrafico(campo) {
   const ctx = document.getElementById('balance-chart');
   if (!ctx) return;
   
-  const datosVisibles = datosAnuales.slice(0, 9);
-  const labels = datosVisibles.map(m => m.mes);
-  const valores = datosVisibles.map(m => m[campo]);
+  const labels = datosAnuales.map(m => m.mes);
+  const valores = datosAnuales.map(m => m[campo]);
 
   if (chart) {
     chart.data.labels = labels;
@@ -154,15 +152,18 @@ function pintarGrafico(campo) {
 // 6. Carga inicial
 pintarGrafico('relevamientos');
 
-// 7. Intentamos cargar los datos reales del JSON
-fetch('data/datos.json')
+// 7. Cargamos los datos reales desde la base de datos
+fetch(API_ESTADISTICAS + '/publicas')
   .then(res => {
     if (!res.ok) throw new Error('No se pudo cargar el balance');
     return res.json();
   })
-  .then(data => {
+  .then(respuesta => {
     datosPorAnio = Object.fromEntries(
-      Object.entries(data).filter(([anio, meses]) => anio !== '_instrucciones' && Array.isArray(meses))
+      Object.entries(respuesta.data || {}).map(([anio, meses]) => [
+        anio,
+        meses.map(m => ({ ...m, mes: NOMBRES_MESES[m.mes - 1] }))
+      ])
     );
 
     const aniosDisponibles = Object.keys(datosPorAnio).sort().reverse();
@@ -171,8 +172,8 @@ fetch('data/datos.json')
     cargarAnio(selectAnio.value);
   })
   .catch(err => {
-    actualizarEstadoBalance('No se pudieron cargar los datos reales. Se muestran datos de referencia.');
-    console.warn('Usando datos genéricos. No se pudo cargar data/datos.json:', err);
+    actualizarEstadoBalance('No se pudieron cargar los datos del balance. Intente nuevamente más tarde.');
+    console.warn('No se pudo cargar las estadísticas:', err);
   });
 
 // 8. Evento del select

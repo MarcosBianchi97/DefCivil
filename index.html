@@ -33,7 +33,12 @@
           <li class="nav-item"><a class="nav-link" href="#institucional">Institucional</a></li>
           <li class="nav-item"><a class="nav-link" href="#prevencion">Prevención</a></li>
           <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-          <li class="nav-item ms-lg-3"> </li>
+          <li class="nav-item">
+            <a class="nav-link" href="admin.html">
+              <svg class="icon me-1" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Acceso interno
+            </a>
+          </li>
         </ul>
       </div>
     </div>
@@ -85,7 +90,7 @@
           <div>
             <label for="stat-year" class="form-label small text-muted mb-1">Año</label>
             <select id="stat-year" class="form-select form-select-sm" style="min-width: 100px;" aria-label="Seleccionar año del balance">
-              <option value="2026" selected>2026</option>
+              
             </select>
           </div>
 
@@ -145,45 +150,14 @@
         <span class="section-eyebrow">Actividad reciente</span>
         <h2>Noticias y operativos</h2>
         <p class="text-muted">Un repaso de los últimos operativos, capacitaciones y alertas comunicadas por el organismo. Fuente: sitio oficial de la Municipalidad.</p>
-        <p class="news-updated mb-0">Última actualización: septiembre de 2026</p>
+        <p class="news-updated mb-0 d-none" id="news-updated"></p>
       </div>
 
       <div id="newsCarousel" class="carousel slide news-carousel border rounded-3 shadow-sm" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-          <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="0" class="active"></button>
-          <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="1"></button>
-          <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="2"></button>
-        </div>
+        <div class="carousel-indicators"></div>
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <div class="row align-items-center g-4 px-3">
-                <div class="col-md-6"><img src="img/temporal.jpg" alt="Comité de Emergencia por temporal" class="slide-image" loading="lazy" decoding="async"></div>
-              <div class="col-md-6">
-                <span class="badge badge-tag mb-2">Operativo</span>
-                <h3 class="h4">Comité de Emergencia por temporal</h3>
-                <p class="text-muted mb-0">Ante lluvias torrenciales, el municipio activó el Comité de Emergencia y habilitó la línea 421-7999 para que los vecinos afectados soliciten asistencia o informen situaciones de riesgo.</p>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <div class="row align-items-center g-4 px-3">
-               <div class="col-md-6"><img src="img/Capacitacion-matafuegos.jpg" alt="Capacitación en uso de matafuegos" class="slide-image" loading="lazy" decoding="async"></div>
-              <div class="col-md-6">
-                <span class="badge badge-tag mb-2">Capacitación</span>
-                <h3 class="h4">Capacitación en uso de matafuegos</h3>
-                <p class="text-muted mb-0">Docentes y personal de jardines de infantes recibieron una capacitación práctica sobre manejo de extintores portátiles, como parte del plan permanente de refuerzo en prevención de incendios.</p>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <div class="row align-items-center g-4 px-3">
-             <div class="col-md-6"><img src="img/imagenRioDulce.jpg" alt="Precaución por crecida del Río Dulce" class="slide-image" loading="lazy" decoding="async"></div>
-              <div class="col-md-6">
-                <span class="badge badge-tag mb-2">Alerta</span>
-                <h3 class="h4">Precaución por crecida del Río Dulce</h3>
-                <p class="text-muted mb-0">Ante el aumento del caudal del río, se reforzó la vigilancia en la zona de los balnearios y se recomendó a los vecinos no ingresar al cauce y seguir las indicaciones de los equipos apostados en el lugar.</p>
-              </div>
-            </div>
+            <p class="text-muted text-center p-5 mb-0">Cargando noticias...</p>
           </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
@@ -401,9 +375,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/posiciones-pines.js"></script>
   <script src="js/script.js"></script>
   <script src="js/balance.js"></script>
   <script src="js/mapa-asistencia.js"></script>
+  <script src="js/sync.js"></script>
 </body>
 </html>

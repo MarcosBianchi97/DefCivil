@@ -38,7 +38,8 @@ const Usuario = sequelize.define(
     },
   },
   {
-    tableName: "usuarios",
+    // La base es compartida con DefCivil, que ya tiene su propia tabla "usuarios" con otro esquema.
+    tableName: "usuarios_web",
     timestamps: true,
   }
 );

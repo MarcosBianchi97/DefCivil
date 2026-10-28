@@ -6,3 +6,11 @@ desktop.ini
 
 # Notas internas para Claude Code, solo local
 CLAUDE.md
+
+# Logs, editor y archivos locales
+*.log
+.vscode/
+.env
+.env.*
+!.env.example
+/package-lock.json

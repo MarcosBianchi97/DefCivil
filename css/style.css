@@ -541,3 +541,8 @@ section p.text-muted {
 .contact-note {
   font-size: 1rem; /* Aumenta la nota sobre los operadores de guardia */
 }
+/* Nivel de alerta vigente (marcado por js/sync.js desde /api/alerta) */
+.alert-scale .alert-level.nivel-vigente {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 2px;
+}

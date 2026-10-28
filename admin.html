@@ -58,7 +58,6 @@
               </button>
             </form>
             <p class="forgot-password text-center mb-0" aria-label="Recuperación de contraseña">¿Olvidaste tu contraseña?</p>
-            <p class="small text-muted text-center mt-3 mb-0">Admin: admin / defensa2026<br>Superadmin: superadmin / superdefensa2026</p>
           </div>
         </div>
       </div>
@@ -122,7 +121,13 @@
 
       <ul class="nav nav-tabs mb-4" id="panel-tabs">
         <li class="nav-item">
-          <button class="nav-link active" data-tab="tab-noticias">Noticias</button>
+          <button class="nav-link active" data-tab="tab-noticias">
+            Noticias
+            <span id="badge-noticias-pendientes" class="badge bg-danger ms-1 d-none">0</span>
+          </button>
+        </li>
+        <li class="nav-item d-none" id="tab-alerta-item">
+          <button class="nav-link" data-tab="tab-alerta">Nivel de alerta</button>
         </li>
       </ul>
 
@@ -200,6 +205,32 @@
             </div>
             <div id="lista-noticias"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- TAB NIVEL DE ALERTA (solo superadmin) -->
+      <div id="tab-alerta" class="tab-pane d-none">
+        <div class="card p-4" style="max-width: 640px;">
+          <h2 class="h5 mb-1">Nivel de alerta vigente</h2>
+          <p class="text-muted small">Se publica de inmediato en la sección "Niveles de alerta" del sitio.</p>
+          <form id="alerta-form">
+            <div class="mb-3">
+              <label for="alerta-nivel" class="form-label">Nivel</label>
+              <select id="alerta-nivel" class="form-select" required>
+                <option value="verde">Nivel 1 — Verde</option>
+                <option value="amarillo">Nivel 2 — Amarillo</option>
+                <option value="naranja">Nivel 3 — Naranja</option>
+                <option value="rojo">Nivel 4 — Rojo</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="alerta-mensaje" class="form-label">Mensaje (opcional)</label>
+              <textarea id="alerta-mensaje" class="form-control" rows="3" maxlength="300"></textarea>
+              <div class="form-text">Reemplaza el texto del nivel vigente. Dejar vacío para mostrar el texto habitual.</div>
+            </div>
+            <p id="alerta-actualizada" class="small text-muted d-none"></p>
+            <button type="submit" class="btn btn-primary">Publicar nivel de alerta</button>
+          </form>
         </div>
       </div>
 
@@ -395,6 +426,7 @@
   <div class="toast-container position-fixed top-0 end-0 p-3" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

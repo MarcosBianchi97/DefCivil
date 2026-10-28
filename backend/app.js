@@ -1,12 +1,19 @@
 import "dotenv/config";
 import crypto from "crypto";
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import sequelize from "./config/database.js";
 import Usuario from "./models/Usuario.js";
+import "./models/Noticia.js";
+import "./models/Alerta.js";
 import authRoutes from "./routes/authRoutes.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
+import noticiaRoutes from "./routes/noticiaRoutes.js";
+import estadisticasRoutes from "./routes/estadisticasRoutes.js";
+import alertaRoutes from "./routes/alertaRoutes.js";
 
 if (!process.env.JWT_SECRET) {
   console.error(
@@ -18,7 +25,9 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
-app.use(express.json());
+// Límite alto porque las noticias pueden llevar una imagen en base64 (data: URL) en vez
+// de un archivo subido aparte — el límite por defecto de Express (100kb) las cortaría.
+app.use(express.json({ limit: "10mb" }));
 
 app.get("/api/status", (req, res) => {
   res.json({ status: "online", mensaje: "API de autenticación de Defensa Civil funcionando." });
@@ -26,6 +35,20 @@ app.get("/api/status", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/noticias", noticiaRoutes);
+app.use("/api/alerta", alertaRoutes);
+// Lee la base de DefCivil (relevamientos, familias, provisiones): datos agregados, sin datos personales
+app.use("/api/estadisticas", estadisticasRoutes);
+
+// El backend también sirve el sitio (index.html, admin.html, css/, js/, img/) para que todo
+// salga del mismo origen y la API quede en /api sin CORS. Solo se publican esas rutas
+// explícitas: backend/ (con su .env) nunca queda expuesto.
+const SITE_DIR = process.env.SITE_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+for (const carpeta of ["css", "js", "img"]) {
+  app.use("/" + carpeta, express.static(path.join(SITE_DIR, carpeta)));
+}
+app.get(["/", "/index.html"], (req, res) => res.sendFile(path.join(SITE_DIR, "index.html")));
+app.get("/admin.html", (req, res) => res.sendFile(path.join(SITE_DIR, "admin.html")));
 
 function generarPasswordAleatoria() {
   return crypto.randomBytes(9).toString("base64url");
@@ -78,7 +101,10 @@ async function iniciarServidor() {
     await sequelize.authenticate();
     console.log("✅ Conexión a la base de datos establecida.");
 
-    await sequelize.sync();
+    // alter:true para que las columnas nuevas de un modelo (como snapshotPrevio/snapshotExpira
+    // en Noticia) se agreguen solas a una tabla que ya existía, sin tener que borrar la base
+    // cada vez. Igual que hace DefCiv-3.0 en su propio arranque.
+    await sequelize.sync({ alter: true });
     console.log("✅ Sincronización de modelos completada.");
 
     await crearUsuariosIniciales();
