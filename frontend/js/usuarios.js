@@ -110,7 +110,7 @@ export async function cargarModuloUsuarios() {
             throw new Error("No se encontró un token de sesión válido. Por favor, vuelva a iniciar sesión.");
         }
 
-        const respuesta = await fetch('https://defciv-app.onrender.com/api/usuarios', {
+        const respuesta = await fetch('/api/usuarios', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -299,7 +299,7 @@ async function registrarUsuarioBackend() {
         btnGuardar.disabled = true;
         btnGuardar.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Guardando...`;
 
-        const url = editId ? `https://defciv-app.onrender.com/api/usuarios/${editId}` : 'https://defciv-app.onrender.com/api/usuarios';
+        const url = editId ? `/api/usuarios/${editId}` : '/api/usuarios';
         const method = editId ? 'PUT' : 'POST';
         const token = localStorage.getItem('token');
 
@@ -348,7 +348,7 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
 
     try {
         const token = localStorage.getItem('token');
-        const respuesta = await fetch(`https://defciv-app.onrender.com/api/usuarios/${id}/estado`, {
+        const respuesta = await fetch(`/api/usuarios/${id}/estado`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',

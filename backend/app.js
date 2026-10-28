@@ -134,7 +134,7 @@ async function crearAdminPorDefecto() {
         if (!adminExistente) {
             console.log('⚠️ No existe el usuario admin. Creando administrador por defecto...');
             
-            const passwordPlana = '123456';
+            const passwordPlana = process.env.ADMIN_INITIAL_PASSWORD || '123456';
             const salt = await bcrypt.genSalt(10);
             const passwordEncriptada = await bcrypt.hash(passwordPlana, salt);
 

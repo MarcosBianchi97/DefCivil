@@ -5,11 +5,14 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME:-defcivil_local}
       POSTGRES_USER: ${DB_USER:-defcivil}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-defcivil_local}
-    ports:
-      - "${POSTGRES_HOST_PORT:-5432}:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en backend/.env}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - type: bind
+        source: ${APP_DATA_DIR:-D:/DefCivil/data}/postgres
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ${APP_DATA_DIR:-D:/DefCivil/data}/backups
+        target: /backups
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
@@ -17,5 +20,29 @@ services:
       retries: 10
       start_period: 5s
 
-volumes:
-  postgres_data:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - backend/.env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DATABASE_URL: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${APP_HOST_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/status').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
